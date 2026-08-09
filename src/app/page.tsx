@@ -1,6 +1,7 @@
 import React from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { FruitScrollIntro } from "@/components/landing/FruitScrollIntro";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { LiveScanPreview } from "@/components/landing/LiveScanPreview";
 import { GlobalProduceExplorer } from "@/components/landing/GlobalProduceExplorer";
@@ -13,6 +14,7 @@ export default function LandingPage() {
       <Navbar />
 
       <main className="flex-1">
+        <FruitScrollIntro />
         <HeroSection />
         <LiveScanPreview />
         <GlobalProduceExplorer />
