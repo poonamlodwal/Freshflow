@@ -1,21 +1,20 @@
 """
 models_db.py
 ------------
-SQLAlchemy ORM models for Phase 2:
+SQLAlchemy ORM models for Phase 3 QR Traceability:
 User, Batch, Listing, Claim, StatusEvent
 """
 
 import enum
 from datetime import datetime, timezone
 from sqlalchemy import (
-    Boolean,
-    Column,
     DateTime,
     Enum as SQLEnum,
     Float,
     ForeignKey,
     Integer,
     String,
+    Text,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from db import Base
@@ -79,7 +78,7 @@ class Batch(Base):
     freshStatus: Mapped[str] = mapped_column(String(50), nullable=False)  # fresh | rotten
     confidence: Mapped[float] = mapped_column(Float, nullable=False)
     estimatedShelfLifeDays: Mapped[int] = mapped_column(Integer, nullable=False)
-    qrCodeUrl: Mapped[str | None] = mapped_column(String(2048), nullable=True)
+    qrCodeUrl: Mapped[str | None] = mapped_column(String(4096), nullable=True)
     createdAt: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
@@ -143,6 +142,7 @@ class StatusEvent(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     batchId: Mapped[str] = mapped_column(String(36), ForeignKey("batches.id"), nullable=False, index=True)
     eventType: Mapped[StatusEventTypeEnum] = mapped_column(SQLEnum(StatusEventTypeEnum), nullable=False)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     timestamp: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,

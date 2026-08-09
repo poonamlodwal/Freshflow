@@ -33,7 +33,6 @@ from models_db import (
 from schemas import (
     BatchCreate,
     BatchResponse,
-    ClaimCreate,
     ListingCreate,
     ListingFilter,
     OriginInfo,

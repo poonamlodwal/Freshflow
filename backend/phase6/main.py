@@ -119,7 +119,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     await init_db()
     async with AsyncSessionLocal() as session:
         await seed_demo_data(session)
-    asyncio.get_event_loop().run_in_executor(None, model_service.load)
+    asyncio.get_running_loop().run_in_executor(None, model_service.load)
     yield
     logger.info("=== FreshChain Phase 6 Demo Service shutting down ===")
     await close_db()

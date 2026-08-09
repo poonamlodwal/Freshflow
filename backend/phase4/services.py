@@ -35,7 +35,6 @@ from schemas import (
     AnalyticsChartDataResponse,
     BatchCreate,
     BatchResponse,
-    ClaimCreate,
     DailyScanPoint,
     ERPStatsResponse,
     InventoryItemResponse,

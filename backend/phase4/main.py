@@ -267,6 +267,26 @@ async def get_listings(
     ]
 
 
+@app.get("/listings/{listing_id}", response_model=ListingResponse, tags=["Listings"])
+async def get_listing(listing_id: str, db: AsyncSession = Depends(get_session)):
+    res = await db.execute(
+        select(Listing).options(selectinload(Listing.batch)).where(Listing.id == listing_id)
+    )
+    listing = res.scalar_one_or_none()
+    if not listing:
+        raise HTTPException(status_code=404, detail="Listing not found.")
+    return ListingResponse(
+        id=listing.id,
+        batchId=listing.batchId,
+        price=listing.price,
+        quantity=listing.quantity,
+        status=listing.status,
+        expiryWindow=listing.expiryWindow,
+        createdAt=listing.createdAt,
+        batch=format_batch_response(listing.batch),
+    )
+
+
 # ── Claim Lifecycle Endpoints ─────────────────────────────────────────────────
 
 @app.post("/listings/{listing_id}/claim", response_model=ClaimResponse, status_code=status.HTTP_201_CREATED, tags=["Claims"])

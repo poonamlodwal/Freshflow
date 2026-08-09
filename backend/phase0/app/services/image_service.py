@@ -22,11 +22,25 @@ _MAX_BYTES = 10 * 1024 * 1024
 _http_client: httpx.AsyncClient | None = None
 
 
+_BROWSER_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/124.0.0.0 Safari/537.36"
+    ),
+    "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+}
+
+
 def get_http_client() -> httpx.AsyncClient:
     """Return the module-level async HTTP client, creating it if needed."""
     global _http_client
     if _http_client is None or _http_client.is_closed:
-        _http_client = httpx.AsyncClient(timeout=15.0, follow_redirects=True)
+        _http_client = httpx.AsyncClient(
+            timeout=15.0,
+            follow_redirects=True,
+            headers=_BROWSER_HEADERS,
+        )
     return _http_client
 
 
@@ -50,8 +64,17 @@ async def fetch_image_from_url(url: str) -> Image.Image:
                     or the bytes cannot be decoded as an image.
     """
     client = get_http_client()
+
+    # Build per-request headers: add Referer matching the image domain so
+    # sites like Wikimedia (which check Referer + User-Agent) don't block us.
     try:
-        response = await client.get(url)
+        parsed = httpx.URL(url)
+        referer = f"{parsed.scheme}://{parsed.host}/"
+    except Exception:
+        referer = url
+
+    try:
+        response = await client.get(url, headers={"Referer": referer})
         response.raise_for_status()
     except httpx.HTTPStatusError as exc:
         raise ValueError(

@@ -1,8 +1,8 @@
 """
 services.py
 -----------
-Domain services for Phase 6 Demo Polish, narrative runner, pitch impact,
-retraining orchestration, and ERP/Marketplace operations.
+Domain services for Phase 5 Fine-Tuning Loop, Retraining Orchestration,
+Admin Summaries, and ERP/Marketplace operations.
 """
 
 from __future__ import annotations
@@ -39,150 +39,21 @@ from schemas import (
     AnalyticsChartDataResponse,
     BatchCreate,
     BatchResponse,
+    DailyScanPoint,
     ERPStatsResponse,
-    ImpactStatementResponse,
     InventoryItemResponse,
     ListingFilter,
-    NarrativeScriptResponse,
-    NarrativeStepResponse,
     ProduceBreakdown,
     RetrainHistoryResponse,
     RetrainResponse,
     UserCreate,
 )
-from utils import (
-    format_pitch_impact_statement,
-    format_retrain_deliverable,
-    is_near_expiry,
-)
+from utils import format_retrain_deliverable, is_near_expiry
 
 logger = logging.getLogger(__name__)
 
 
-# ── Narrative Script & Pitch Impact Services (Phase 6) ─────────────────────────
-
-def get_narrative_script_service() -> NarrativeScriptResponse:
-    """Return the structured 6-step judge-ready walkthrough script."""
-    steps = [
-        NarrativeStepResponse(
-            stepNumber=1,
-            title="Module A: FreshScan AI Quality Detection",
-            action="Scan produce photo (URL or camera capture)",
-            description="User uploads produce photo. Hugging Face AI returns quality label ('fresh'/'rotten'), confidence score, and estimated shelf-life in seconds.",
-            module="FreshScan (AI Core)",
-            details={"endpoint": "POST /predict/url", "sampleInput": "https://.../banana_001.jpg"},
-        ),
-        NarrativeStepResponse(
-            stepNumber=2,
-            title="Module A -> B: Auto-Tag Near-Expiry Produce",
-            action="System evaluates shelf-life threshold (<=3 days)",
-            description="Produce with <= 3 days remaining shelf-life is auto-flagged as 'Near Expiry' and prompts business with an instant 'Create Listing' action.",
-            module="FreshScan -> Marketplace Bridge",
-            details={"thresholdDays": 3, "autoSuggest": True},
-        ),
-        NarrativeStepResponse(
-            stepNumber=3,
-            title="Module B: Near-Expiry Marketplace Publish",
-            action="Publish listing with discounted price & quantity",
-            description="Business publishes produce to the public marketplace. Nearby buyers filter produce by type, price, and expiry window.",
-            module="Near-Expiry Marketplace",
-            details={"endpoint": "POST /listings", "samplePrice": "$1.99"},
-        ),
-        NarrativeStepResponse(
-            stepNumber=4,
-            title="Module B: Buyer Claim Request & Lifecycle",
-            action="Buyer submits claim request; seller accepts",
-            description="Buyer account clicks 'Request Claim'. Seller receives request, accepts, and listing status transitions to 'Claimed'.",
-            module="Claim Lifecycle",
-            details={"statuses": ["available", "requested", "claimed", "delivered"]},
-        ),
-        NarrativeStepResponse(
-            stepNumber=5,
-            title="Module C: Scannable Public QR Traceability",
-            action="Scan QR code on produce batch packaging",
-            description="Phone camera scans QR code, opening public /track/{batchId} page showing produce origin, quality classification, and complete audited timeline.",
-            module="QR Traceability",
-            details={"publicAccess": True, "noAuthRequired": True},
-        ),
-        NarrativeStepResponse(
-            stepNumber=6,
-            title="Module D & E: Mini ERP & Fine-Tuning Loop",
-            action="View live aggregate dashboard & trigger model retraining",
-            description="Business dashboard displays live waste saved, total revenue, and AI suggestions. Admin triggers model retraining on corrected samples, demonstrating continuous accuracy improvement.",
-            module="Mini ERP & Fine-Tuning",
-            details={"endpoint": "GET /erp/stats", "retrainEndpoint": "POST /retrain"},
-        ),
-    ]
-
-    return NarrativeScriptResponse(
-        title="FreshChain End-to-End Judge Walkthrough Script",
-        totalSteps=6,
-        estimatedDurationMinutes=3.5,
-        steps=steps,
-    )
-
-
-async def run_narrative_step_service(db: AsyncSession, step_number: int) -> dict:
-    """Execute programmatic demonstration of a specific narrative step."""
-    script = get_narrative_script_service()
-    matching = [s for s in script.steps if s.stepNumber == step_number]
-    if not matching:
-        raise HTTPException(status_code=404, detail=f"Step {step_number} not found.")
-
-    step = matching[0]
-
-    if step_number == 1:
-        res = await db.execute(select(Batch).order_by(Batch.createdAt.desc()).limit(1))
-        batch = res.scalar_one_or_none()
-        data = {"sampleBatch": batch.id if batch else "batch_demo_apple_001", "predictedStatus": batch.freshStatus if batch else "fresh"}
-    elif step_number == 2:
-        res = await db.execute(select(Batch).where(Batch.estimatedShelfLifeDays <= settings.NEAR_EXPIRY_THRESHOLD).limit(3))
-        batches = list(res.scalars().all())
-        data = {"nearExpiryBatchesCount": len(batches), "batchIds": [b.id for b in batches]}
-    elif step_number == 3:
-        res = await db.execute(select(Listing).where(Listing.status == ListingStatusEnum.AVAILABLE).limit(5))
-        listings = list(res.scalars().all())
-        data = {"availableListingsCount": len(listings)}
-    elif step_number == 4:
-        res = await db.execute(select(Claim).limit(3))
-        claims = list(res.scalars().all())
-        data = {"claimsCount": len(claims)}
-    elif step_number == 5:
-        res = await db.execute(select(Batch).where(Batch.qrCodeUrl.isnot(None)).limit(1))
-        b = res.scalar_one_or_none()
-        data = {"sampleBatchId": b.id if b else "batch_demo_apple_001", "qrUrl": b.qrCodeUrl if b else None}
-    else:
-        stats = await get_erp_stats_service(db)
-        data = {"wasteSavedKg": stats.estimatedWasteSavedKg, "totalRevenue": stats.totalRevenue}
-
-    return {
-        "step": step.model_dump(),
-        "executionStatus": "success",
-        "liveData": data,
-    }
-
-
-async def get_pitch_impact_statement_service(db: AsyncSession) -> ImpactStatementResponse:
-    """Generate 2-3 line pitch impact statement & metrics."""
-    stats = await get_erp_stats_service(db)
-    summary = await get_admin_retrain_summary(db)
-
-    statement = format_pitch_impact_statement(
-        waste_saved_kg=stats.estimatedWasteSavedKg,
-        revenue_saved=stats.totalRevenue,
-        model_id=settings.HF_MODEL_ID,
-    )
-
-    return ImpactStatementResponse(
-        impactStatement=statement,
-        wasteSavedKg=stats.estimatedWasteSavedKg,
-        revenueSavedDollars=stats.totalRevenue,
-        modelAttribution=f"Powered by [{settings.HF_MODEL_ID}](https://huggingface.co/{settings.HF_MODEL_ID}) via Hugging Face 🤗",
-        fineTuningAccuracyImprovement=summary.headline,
-    )
-
-
-# ── Training Sample & Fine-Tuning Services (Phase 5) ─────────────────────────
+# ── Training Sample & Fine-Tuning Services ───────────────────────────────────
 
 async def log_training_sample(
     db: AsyncSession,
@@ -190,6 +61,7 @@ async def log_training_sample(
     predicted_label: str,
     batch_id: Optional[str] = None,
 ) -> TrainingSample:
+    """Log prediction as a TrainingSample in database."""
     sample = TrainingSample(
         id=str(uuid.uuid4()),
         batchId=batch_id,
@@ -209,6 +81,7 @@ async def correct_sample_label(
     sample_id: str,
     corrected_label: str,
 ) -> TrainingSample:
+    """Allow user/admin to correct a wrong prediction label."""
     res = await db.execute(select(TrainingSample).where(TrainingSample.id == sample_id))
     sample = res.scalar_one_or_none()
     if not sample:
@@ -217,6 +90,7 @@ async def correct_sample_label(
     sample.correctedLabel = corrected_label
     await db.commit()
     await db.refresh(sample)
+    logger.info("Sample %s corrected to label: %s", sample_id, corrected_label)
     return sample
 
 
@@ -225,6 +99,7 @@ async def list_training_samples(
     limit: int = 50,
     used_in_retrain: Optional[bool] = None,
 ) -> List[TrainingSample]:
+    """List recorded training samples with optional filtering."""
     stmt = select(TrainingSample)
     if used_in_retrain is not None:
         stmt = stmt.where(TrainingSample.usedInRetrain == used_in_retrain)
@@ -234,6 +109,10 @@ async def list_training_samples(
 
 
 async def execute_retrain_job(sample_limit: int = 100) -> RetrainResponse:
+    """
+    Fine-tunes final layer(s) on accumulated unretrained samples.
+    Executes without blocking live /predict traffic.
+    """
     async with AsyncSessionLocal() as db:
         res = await db.execute(
             select(TrainingSample)
@@ -243,6 +122,7 @@ async def execute_retrain_job(sample_limit: int = 100) -> RetrainResponse:
         )
         samples = list(res.scalars().all())
 
+        # If no new samples, include recent corrected samples for demonstration
         if not samples:
             res_all = await db.execute(
                 select(TrainingSample)
@@ -263,6 +143,7 @@ async def execute_retrain_job(sample_limit: int = 100) -> RetrainResponse:
 
         acc_before, acc_after, samples_used = model_service.fine_tune_classifier(sample_dicts)
 
+        # Mark samples as used in retrain
         for s in samples:
             s.usedInRetrain = True
 
@@ -289,6 +170,7 @@ async def execute_retrain_job(sample_limit: int = 100) -> RetrainResponse:
 
 
 async def get_retrain_history_list(db: AsyncSession, limit: int = 20) -> List[RetrainHistory]:
+    """Retrieve history of model fine-tuning runs."""
     res = await db.execute(
         select(RetrainHistory).order_by(RetrainHistory.createdAt.desc()).limit(limit)
     )
@@ -296,6 +178,7 @@ async def get_retrain_history_list(db: AsyncSession, limit: int = 20) -> List[Re
 
 
 async def get_admin_retrain_summary(db: AsyncSession) -> AdminRetrainSummaryResponse:
+    """Generate deliverable summary panel for admin dashboard."""
     total_res = await db.execute(select(func.count(TrainingSample.id)))
     total_samples = total_res.scalar() or 0
 
@@ -322,7 +205,7 @@ async def get_admin_retrain_summary(db: AsyncSession) -> AdminRetrainSummaryResp
         )
         latest_dto = RetrainHistoryResponse.model_validate(latest_retrain)
     else:
-        headline = "Model retrained on 25 new samples — accuracy improved from 84.0% to 96.0%."
+        headline = "Model ready for initial fine-tuning — no retrain jobs run yet."
         latest_dto = None
 
     return AdminRetrainSummaryResponse(
@@ -334,7 +217,7 @@ async def get_admin_retrain_summary(db: AsyncSession) -> AdminRetrainSummaryResp
     )
 
 
-# ── Domain Services (Users, Batches, Listings, Claims, ERP) ────────────────────
+# ── Reused Domain Services (Users, Batches, Listings, Claims, ERP) ─────────────
 
 async def create_user_service(db: AsyncSession, user_in: UserCreate) -> User:
     res = await db.execute(select(User).where(User.email == user_in.email))
@@ -554,6 +437,8 @@ async def get_erp_inventory_service(
     search: Optional[str] = None,
     fresh_status: Optional[str] = None,
     listing_status: Optional[str] = None,
+    sort_by: str = "createdAt",
+    sort_order: str = "desc",
 ) -> List[InventoryItemResponse]:
     stmt = select(Batch).options(selectinload(Batch.listing))
     if owner_id:
@@ -651,8 +536,29 @@ async def get_erp_analytics_service(db: AsyncSession, owner_id: Optional[str] = 
         st = l.status.value
         claim_breakdown[st] = claim_breakdown.get(st, 0) + 1
 
+    trend_map: dict[str, dict[str, int]] = {}
+    for b in batches:
+        date_str = b.createdAt.strftime("%Y-%m-%d")
+        if date_str not in trend_map:
+            trend_map[date_str] = {"scansCount": 0, "freshCount": 0, "rottenCount": 0}
+        trend_map[date_str]["scansCount"] += 1
+        if b.freshStatus == "fresh":
+            trend_map[date_str]["freshCount"] += 1
+        else:
+            trend_map[date_str]["rottenCount"] += 1
+
+    daily_trend = [
+        DailyScanPoint(
+            date=k,
+            scansCount=v["scansCount"],
+            freshCount=v["freshCount"],
+            rottenCount=v["rottenCount"],
+        )
+        for k, v in sorted(trend_map.items())
+    ]
+
     return AnalyticsChartDataResponse(
         produceBreakdown=produce_breakdown,
-        dailyScanTrend=[],
+        dailyScanTrend=daily_trend,
         claimStatusBreakdown=claim_breakdown,
     )

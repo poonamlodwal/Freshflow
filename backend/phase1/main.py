@@ -57,7 +57,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Run the blocking model.load() off the event loop so uvicorn finishes
     # startup immediately and /health can respond (modelLoaded=False) while
     # the weights download on first run.
-    asyncio.get_event_loop().run_in_executor(None, model_service.load)
+    asyncio.get_running_loop().run_in_executor(None, model_service.load)
     yield
     logger.info("=== FreshChain ML Service shutting down ===")
     await close_db()

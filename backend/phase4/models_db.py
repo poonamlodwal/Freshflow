@@ -8,7 +8,6 @@ User, Batch, Listing, Claim, StatusEvent
 import enum
 from datetime import datetime, timezone
 from sqlalchemy import (
-    Column,
     DateTime,
     Enum as SQLEnum,
     Float,
