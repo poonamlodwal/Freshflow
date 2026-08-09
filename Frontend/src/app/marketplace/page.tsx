@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { TiltProduceCard } from "@/components/marketplace/TiltProduceCard";
@@ -9,6 +9,7 @@ import { MOCK_MARKETPLACE_BATCHES, ProduceBatch } from "@/lib/mockData";
 import { Search, Filter, SlidersHorizontal, Store, Sparkles, Clock, CheckCircle2 } from "lucide-react";
 
 export default function MarketplacePage() {
+  const [batches, setBatches] = useState<ProduceBatch[]>(MOCK_MARKETPLACE_BATCHES);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [expiryMaxDays, setExpiryMaxDays] = useState<number>(5);
@@ -18,7 +19,23 @@ export default function MarketplacePage() {
 
   const categories = ["All", "Fruits", "Vegetables", "Organics", "Berries"];
 
-  const filteredBatches = MOCK_MARKETPLACE_BATCHES.filter((batch) => {
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (selectedCategory !== "All") params.set("category", selectedCategory);
+    if (searchQuery) params.set("query", searchQuery);
+    if (expiryMaxDays) params.set("maxDays", expiryMaxDays.toString());
+
+    fetch(`/api/marketplace?${params.toString()}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.listings)) {
+          setBatches(data.listings);
+        }
+      })
+      .catch((err) => console.warn("Failed to load marketplace listings:", err));
+  }, [selectedCategory, searchQuery, expiryMaxDays]);
+
+  const filteredBatches = batches.filter((batch) => {
     const matchesCategory = selectedCategory === "All" || batch.category === selectedCategory;
     const matchesQuery =
       batch.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -31,7 +48,10 @@ export default function MarketplacePage() {
 
   const handleClaimSuccess = (batchId: string) => {
     setClaimedBatchIds((prev) => [...prev, batchId]);
-    setToastMsg(`Batch ${batchId} claimed successfully! Smart contract locked.`);
+    setBatches((prev) =>
+      prev.map((b) => (b.id === batchId ? { ...b, status: "Claimed" } : b))
+    );
+    setToastMsg(`Batch ${batchId} claimed successfully! Escrow smart contract verified.`);
     setTimeout(() => setToastMsg(null), 4000);
   };
 

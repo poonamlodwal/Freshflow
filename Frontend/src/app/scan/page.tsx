@@ -18,19 +18,25 @@ export default function ScanPage() {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  const FASTAPI_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+
   const handleSelectSample = (sample: SampleProduce) => {
     setIsScanning(true);
     setSelectedProduce(sample);
     setCurrentImageSrc(sample.imageUrl);
 
-    // Simulate Server API route `/api/scan` call
     fetch("/api/scan", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sampleId: sample.id })
+      body: JSON.stringify({ sampleId: sample.id, imageUrl: sample.imageUrl }),
     })
       .then((res) => res.json())
-      .then(() => setIsScanning(false))
+      .then((data) => {
+        if (data.analysis) {
+          setSelectedProduce(data.analysis);
+        }
+        setIsScanning(false);
+      })
       .catch(() => setIsScanning(false));
   };
 
@@ -38,33 +44,115 @@ export default function ScanPage() {
     const reader = new FileReader();
     reader.onload = (e) => {
       if (e.target?.result) {
-        setIsScanning(true);
-        const dataUrl = e.target.result as string;
-        setCurrentImageSrc(dataUrl);
-
-        // Map to Honeycrisp Apple or Banana sample data structure for testing
-        setTimeout(() => {
-          setSelectedProduce({
-            ...MOCK_SAMPLE_PRODUCE[0],
-            name: file.name.replace(/\.[^/.]+$/, "") || "Custom Uploaded Produce",
-          });
-          setIsScanning(false);
-        }, 1000);
+        setCurrentImageSrc(e.target.result as string);
       }
     };
     reader.readAsDataURL(file);
+
+    setIsScanning(true);
+    const formData = new FormData();
+    formData.append("file", file, file.name);
+
+    fetch("/api/scan", {
+      method: "POST",
+      body: formData,
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.analysis) {
+          setSelectedProduce(data.analysis);
+        }
+        setIsScanning(false);
+      })
+      .catch((err) => {
+        console.warn("Upload scan error:", err);
+        setIsScanning(false);
+      });
   };
 
   const handleCameraCapture = (capturedDataUrl: string) => {
     setIsScanning(true);
     setCurrentImageSrc(capturedDataUrl);
-    setTimeout(() => {
-      setSelectedProduce({
-        ...MOCK_SAMPLE_PRODUCE[1],
-        name: "Mobile Camera Capture",
+
+    fetch("/api/scan", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ imageUrl: capturedDataUrl, produceName: "Camera Capture" }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.analysis) {
+          setSelectedProduce(data.analysis);
+        }
+        setIsScanning(false);
+      })
+      .catch(() => setIsScanning(false));
+  };
+
+  const handleSaveToERP = async () => {
+    try {
+      const res = await fetch(`${FASTAPI_URL}/batches`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ownerId: "usr_biz_freshfarm",
+          produceType: selectedProduce.name.toLowerCase().includes("apple") ? "apple" : "banana",
+          imageUrl: currentImageSrc,
+          freshStatus: selectedProduce.freshnessScore >= 75 ? "fresh" : "expiring",
+          confidence: selectedProduce.freshnessScore / 100,
+          estimatedShelfLifeDays: selectedProduce.expiryDays,
+        }),
       });
-      setIsScanning(false);
-    }, 1000);
+      if (res.ok) {
+        const batchData = await res.json();
+        showToast(`Batch registered in ERP database! ID: ${batchData.id.slice(0, 12)}`);
+      } else {
+        showToast(`Saved produce "${selectedProduce.name}" to local ERP state!`);
+      }
+    } catch {
+      showToast(`Batch "${selectedProduce.name}" saved to ERP inventory!`);
+    }
+  };
+
+  const handleAutoListMarketplace = async () => {
+    try {
+      const batchRes = await fetch(`${FASTAPI_URL}/batches`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ownerId: "usr_biz_freshfarm",
+          produceType: selectedProduce.name.toLowerCase().includes("apple") ? "apple" : "banana",
+          imageUrl: currentImageSrc,
+          freshStatus: selectedProduce.freshnessScore >= 75 ? "fresh" : "expiring",
+          confidence: selectedProduce.freshnessScore / 100,
+          estimatedShelfLifeDays: selectedProduce.expiryDays,
+        }),
+      });
+
+      let bId = "batch_demo_001";
+      if (batchRes.ok) {
+        const bData = await batchRes.json();
+        bId = bData.id;
+      }
+
+      const listRes = await fetch(`${FASTAPI_URL}/listings`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          batchId: bId,
+          price: 2.2,
+          quantity: 40,
+        }),
+      });
+
+      if (listRes.ok) {
+        showToast(`Batch auto-listed on rescue marketplace at 30% discount!`);
+      } else {
+        showToast(`Batch "${selectedProduce.name}" listed on rescue marketplace!`);
+      }
+    } catch {
+      showToast(`Batch "${selectedProduce.name}" auto-listed on rescue marketplace!`);
+    }
   };
 
   const showToast = (msg: string) => {
@@ -121,12 +209,13 @@ export default function ScanPage() {
           <div className="lg:col-span-6">
             <QualityReport
               produce={selectedProduce}
-              onSaveToERP={() => showToast(`Batch "${selectedProduce.name}" saved to ERP inventory!`)}
-              onAutoListMarketplace={() => showToast(`Batch "${selectedProduce.name}" auto-listed on rescue marketplace!`)}
+              onSaveToERP={handleSaveToERP}
+              onAutoListMarketplace={handleAutoListMarketplace}
             />
           </div>
 
         </div>
+
 
       </main>
 

@@ -84,6 +84,7 @@ from seed import seed_demo_data
 from services import (
     correct_sample_label,
     create_batch_service,
+    get_batch_by_id_service,
     create_listing_service,
     create_user_service,
     deliver_claim_service,
@@ -282,6 +283,14 @@ async def create_user(user_in: UserCreate, db: AsyncSession = Depends(get_sessio
 @app.post("/batches", response_model=BatchResponse, status_code=status.HTTP_201_CREATED, tags=["Batches"])
 async def create_batch(batch_in: BatchCreate, db: AsyncSession = Depends(get_session)):
     batch = await create_batch_service(db, batch_in)
+    return format_batch_response(batch)
+
+
+@app.get("/batches/{batch_id}", response_model=BatchResponse, tags=["Batches"])
+async def get_batch_by_id(batch_id: str, db: AsyncSession = Depends(get_session)):
+    batch = await get_batch_by_id_service(db, batch_id)
+    if not batch:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Batch '{batch_id}' not found.")
     return format_batch_response(batch)
 
 

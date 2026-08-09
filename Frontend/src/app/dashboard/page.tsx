@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { AnimatedCountUp } from "@/components/dashboard/AnimatedCountUp";
@@ -21,8 +21,23 @@ import {
 import Link from "next/link";
 
 export default function DashboardPage() {
+  const [stats, setStats] = useState(MOCK_ERP_STATS);
   const [inventory, setInventory] = useState<ProduceBatch[]>(MOCK_MARKETPLACE_BATCHES);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/dashboard")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          if (data.stats) setStats(data.stats);
+          if (Array.isArray(data.inventory) && data.inventory.length > 0) {
+            setInventory(data.inventory);
+          }
+        }
+      })
+      .catch((err) => console.warn("Failed to fetch dashboard data:", err));
+  }, []);
 
   const handleToggleStatus = (batchId: string) => {
     setInventory((prev) =>
@@ -101,7 +116,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="text-3xl font-bold text-slate-900 dark:text-white font-mono">
-              <AnimatedCountUp value={MOCK_ERP_STATS.totalBatchesTracked} />
+              <AnimatedCountUp value={stats.totalBatchesTracked} />
             </div>
             <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-mono flex items-center gap-1">
               <ArrowUpRight className="w-3.5 h-3.5" />
@@ -117,7 +132,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 font-mono">
-              <AnimatedCountUp value={MOCK_ERP_STATS.freshnessRatioPercent} suffix="%" decimals={1} />
+              <AnimatedCountUp value={stats.freshnessRatioPercent} suffix="%" decimals={1} />
             </div>
             <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
               Grade A & B Quality Standard
@@ -132,7 +147,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="text-3xl font-bold text-amber-600 dark:text-amber-400 font-mono">
-              <AnimatedCountUp value={MOCK_ERP_STATS.totalWastePreventedKg} suffix=" kg" />
+              <AnimatedCountUp value={stats.totalWastePreventedKg} suffix=" kg" />
             </div>
             <p className="text-[11px] text-amber-700 dark:text-amber-300 font-mono">
               Equivalent to 35.6 tons CO2
@@ -147,12 +162,13 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="text-3xl font-bold text-slate-900 dark:text-white font-mono">
-              <AnimatedCountUp value={MOCK_ERP_STATS.salvagedRevenueUsd} prefix="$" />
+              <AnimatedCountUp value={stats.salvagedRevenueUsd} prefix="$" />
             </div>
             <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-mono">
               Dynamic marketplace rescue
             </p>
           </div>
+
 
         </div>
 

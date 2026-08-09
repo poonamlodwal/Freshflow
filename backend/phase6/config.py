@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite+aiosqlite:///./phase6_freshchain.db"
 
     # ── CORS ───────────────────────────────────────────────────────────────
-    ALLOWED_ORIGINS: str = "http://localhost:3000"
+    ALLOWED_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001"
 
     # ── Shelf-life thresholds (days) ───────────────────────────────────────
     SHELF_LIFE_FRESH_DAYS: int = 7

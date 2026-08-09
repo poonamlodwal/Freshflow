@@ -27,3 +27,8 @@ env/
 *.pem
 .vscode/
 .idea/
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3

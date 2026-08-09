@@ -1,0 +1,117 @@
+<svg fill="none" viewBox="0 0 800 180" width="100%" xmlns="http://www.w3.org/2000/svg">
+  <foreignObject width="100%" height="100%">
+    <div xmlns="http://www.w3.org/1999/xhtml">
+      <style>
+        .pipeline-card {
+          background: #090d16;
+          border-radius: 16px;
+          border: 1px solid rgba(16, 185, 129, 0.25);
+          height: 178px;
+          width: 798px;
+          padding: 20px;
+          box-sizing: border-box;
+          font-family: 'Segoe UI', system-ui, sans-serif;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .step-box {
+          background: rgba(6, 78, 59, 0.4);
+          border: 1px solid rgba(52, 211, 153, 0.3);
+          border-radius: 12px;
+          padding: 16px;
+          width: 160px;
+          text-align: center;
+          box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+          transition: all 0.3s;
+          position: relative;
+          z-index: 2;
+        }
+
+        .step-num {
+          font-family: monospace;
+          font-weight: 800;
+          font-size: 10px;
+          color: #34d399;
+          background: rgba(16, 185, 129, 0.2);
+          padding: 3px 8px;
+          border-radius: 6px;
+          display: inline-block;
+          margin-bottom: 6px;
+        }
+
+        .step-title {
+          color: #ffffff;
+          font-size: 13px;
+          font-weight: 700;
+          margin-bottom: 4px;
+        }
+
+        .step-desc {
+          color: #94a3b8;
+          font-size: 10px;
+          line-height: 1.3;
+        }
+
+        .connector {
+          width: 30px;
+          height: 2px;
+          background: rgba(52, 211, 153, 0.2);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .connector-pulse {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          width: 12px;
+          background: linear-gradient(90deg, transparent, #34d399, transparent);
+          animation: flow 1.5s infinite linear;
+        }
+
+        @keyframes flow {
+          0% { left: -100%; }
+          100% { left: 100%; }
+        }
+      </style>
+
+      <div class="pipeline-card">
+        
+        <div class="step-box">
+          <div class="step-num">STEP 01</div>
+          <div class="step-title">📷 ViT Inspection</div>
+          <div class="step-desc">ResNet-50 Vision Transformer classifies produce freshness in 42ms.</div>
+        </div>
+
+        <div class="connector"><div class="connector-pulse"></div></div>
+
+        <div class="step-box">
+          <div class="step-num">STEP 02</div>
+          <div class="step-title">📊 Dynamic Grade</div>
+          <div class="step-desc">Calculates Brix sugar level, shelf-life days &amp; freshness ratio.</div>
+        </div>
+
+        <div class="connector"><div class="connector-pulse" style="animation-delay: 0.4s;"></div></div>
+
+        <div class="step-box">
+          <div class="step-num">STEP 03</div>
+          <div class="step-title">🏬 Marketplace</div>
+          <div class="step-desc">Auto-lists near-expiry surplus at 15%-60% algorithmic discounts.</div>
+        </div>
+
+        <div class="connector"><div class="connector-pulse" style="animation-delay: 0.8s;"></div></div>
+
+        <div class="step-box">
+          <div class="step-num">STEP 04</div>
+          <div class="step-title">📦 QR Passport</div>
+          <div class="step-desc">Generates audited cryptographic QR traceability certificate.</div>
+        </div>
+
+      </div>
+    </div>
+  </foreignObject>
+</svg>

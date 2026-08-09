@@ -400,6 +400,11 @@ def format_batch_response(batch: Batch) -> BatchResponse:
     )
 
 
+async def get_batch_by_id_service(db: AsyncSession, batch_id: str) -> Optional[Batch]:
+    res = await db.execute(select(Batch).where(Batch.id == batch_id))
+    return res.scalar_one_or_none()
+
+
 async def create_listing_service(db: AsyncSession, listing_in: ListingCreate) -> Listing:
     batch_res = await db.execute(select(Batch).where(Batch.id == listing_in.batchId))
     batch = batch_res.scalar_one_or_none()
