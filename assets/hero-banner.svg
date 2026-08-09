@@ -1,258 +1,135 @@
-<svg fill="none" viewBox="0 0 800 240" width="100%" xmlns="http://www.w3.org/2000/svg">
-  <foreignObject width="100%" height="100%">
-    <div xmlns="http://www.w3.org/1999/xhtml">
-      <style>
-        .container {
-          background: linear-gradient(135deg, #064e3b 0%, #022c22 50%, #090d16 100%);
-          border-radius: 20px;
-          border: 1px solid rgba(16, 185, 129, 0.3);
-          box-shadow: 0 0 35px rgba(16, 185, 129, 0.25), inset 0 0 20px rgba(16, 185, 129, 0.15);
-          height: 238px;
-          width: 798px;
-          position: relative;
-          overflow: hidden;
-          font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-          box-sizing: border-box;
-          padding: 24px 32px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 240" width="100%" height="240">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#064e3b" />
+      <stop offset="50%" stop-color="#022c22" />
+      <stop offset="100%" stop-color="#090d16" />
+    </linearGradient>
 
-        /* Grid Background Pattern */
-        .grid-bg {
-          position: absolute;
-          inset: 0;
-          background-image: 
-            linear-gradient(to right, rgba(16, 185, 129, 0.07) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(16, 185, 129, 0.07) 1px, transparent 1px);
-          background-size: 24px 24px;
-          pointer-events: none;
-        }
+    <!-- Accent Green Gradient -->
+    <linearGradient id="accent-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="50%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#6ee7b7" />
+    </linearGradient>
 
-        /* Laser Sweep Animation */
-        .laser-sweep {
-          position: absolute;
-          top: 0;
-          bottom: 0;
-          width: 4px;
-          background: #34d399;
-          box-shadow: 0 0 25px 8px #10b981, 0 0 50px 15px #34d399;
-          opacity: 0.85;
-          animation: sweep 4s ease-in-out infinite alternate;
-          pointer-events: none;
-        }
+    <!-- Laser Beam Glow -->
+    <linearGradient id="laser-glow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#34d399" stop-opacity="0" />
+      <stop offset="50%" stop-color="#34d399" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#34d399" stop-opacity="0" />
+    </linearGradient>
 
-        @keyframes sweep {
-          0% { left: 0%; }
-          100% { left: 100%; }
-        }
+    <!-- Progress Bar Gradient -->
+    <linearGradient id="bar-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#34d399" />
+    </linearGradient>
 
-        /* Ambient Glowing Orbs */
-        .glow-orb-1 {
-          position: absolute;
-          top: -40px;
-          right: 20%;
-          width: 180px;
-          height: 180px;
-          background: #10b981;
-          filter: blur(80px);
-          opacity: 0.35;
-          animation: pulse 3s ease-in-out infinite alternate;
-        }
+    <!-- Grid Pattern -->
+    <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#10b981" stroke-width="1" stroke-opacity="0.08" />
+    </pattern>
+  </defs>
 
-        .glow-orb-2 {
-          position: absolute;
-          bottom: -40px;
-          left: 10%;
-          width: 150px;
-          height: 150px;
-          background: #059669;
-          filter: blur(70px);
-          opacity: 0.25;
-          animation: pulse 4s ease-in-out infinite alternate-reverse;
-        }
+  <style>
+    .title-text { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; font-weight: 900; font-size: 34px; fill: #ffffff; }
+    .sub-text { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; font-weight: 500; font-size: 13px; fill: #a7f3d0; }
+    .badge-text { font-family: 'SFMono-Regular', Consolas, monospace; font-weight: 700; font-size: 10.5px; fill: #6ee7b7; }
+    .hud-title { font-family: monospace; font-size: 10px; font-weight: 700; fill: #34d399; }
+    .hud-label { font-family: 'Segoe UI', sans-serif; font-size: 11px; fill: #cbd5e1; }
+    .hud-val { font-family: monospace; font-size: 11px; font-weight: 700; fill: #34d399; }
+  </style>
 
-        @keyframes pulse {
-          0% { opacity: 0.2; transform: scale(0.9); }
-          100% { opacity: 0.45; transform: scale(1.15); }
-        }
+  <!-- Container Base -->
+  <rect width="796" height="236" x="2" y="2" rx="16" fill="url(#bg-grad)" stroke="#10b981" stroke-width="1.5" stroke-opacity="0.4" />
 
-        /* Text & Branding Styles */
-        .title {
-          font-size: 38px;
-          font-weight: 900;
-          color: #ffffff;
-          letter-spacing: -0.5px;
-          margin: 0;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          text-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
-        }
+  <!-- Grid Overlay -->
+  <rect width="796" height="236" x="2" y="2" rx="16" fill="url(#grid)" />
 
-        .highlight {
-          background: linear-gradient(90deg, #34d399, #10b981, #6ee7b7);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          filter: drop-shadow(0 0 12px rgba(52, 211, 153, 0.3));
-        }
+  <!-- Ambient Glow Orbs -->
+  <circle cx="650" cy="40" r="100" fill="#10b981" fill-opacity="0.18">
+    <animate attributeName="r" values="80;115;80" dur="4s" repeatCount="indefinite" />
+  </circle>
+  <circle cx="150" cy="200" r="80" fill="#059669" fill-opacity="0.15">
+    <animate attributeName="r" values="70;95;70" dur="5s" repeatCount="indefinite" />
+  </circle>
 
-        .subtitle {
-          color: #a7f3d0;
-          font-size: 14px;
-          margin-top: 8px;
-          font-weight: 500;
-          max-width: 440px;
-          line-height: 1.5;
-        }
+  <!-- Animated Laser Scanner Beam -->
+  <g>
+    <rect x="0" y="2" width="6" height="236" fill="url(#laser-glow)">
+      <animate attributeName="x" values="2;790;2" dur="4s" repeatCount="indefinite" />
+    </rect>
+    <line x1="0" y1="2" x2="0" y2="238" stroke="#34d399" stroke-width="2">
+      <animate attributeName="x1" values="5;793;5" dur="4s" repeatCount="indefinite" />
+      <animate attributeName="x2" values="5;793;5" dur="4s" repeatCount="indefinite" />
+    </line>
+  </g>
 
-        .badge-bar {
-          display: flex;
-          gap: 10px;
-          margin-top: 18px;
-        }
+  <!-- Left Header Content -->
+  <g transform="translate(36, 40)">
+    <!-- Main Title -->
+    <text x="0" y="30" class="title-text">🌱 FRESH<tspan fill="#34d399">FLOW</tspan></text>
 
-        .badge {
-          background: rgba(6, 78, 59, 0.7);
-          border: 1px solid rgba(52, 211, 153, 0.4);
-          color: #6ee7b7;
-          font-family: 'SFMono-Regular', Consolas, monospace;
-          font-size: 11px;
-          font-weight: 700;
-          padding: 6px 12px;
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          backdrop-filter: blur(8px);
-        }
+    <!-- Subtitle -->
+    <text x="0" y="56" class="sub-text">Autonomous Vision AI Produce Diagnostic &amp; Circular Supply Chain</text>
+    <text x="0" y="74" class="sub-text" fill-opacity="0.8">Empowering farms and rescue buyers with real-time freshness scoring.</text>
 
-        .pulse-dot {
-          width: 8px;
-          height: 8px;
-          background: #34d399;
-          border-radius: 50%;
-          box-shadow: 0 0 8px #34d399;
-          animation: blink 1.5s infinite;
-        }
+    <!-- Badges -->
+    <g transform="translate(0, 96)">
+      <!-- Badge 1 -->
+      <rect x="0" y="0" width="165" height="28" rx="8" fill="#064e3b" fill-opacity="0.7" stroke="#34d399" stroke-opacity="0.4" />
+      <circle cx="14" cy="14" r="4" fill="#34d399">
+        <animate attributeName="opacity" values="1;0.2;1" dur="1.5s" repeatCount="indefinite" />
+      </circle>
+      <text x="26" y="18" class="badge-text">VISION TRANSFORMER</text>
 
-        @keyframes blink {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.3; transform: scale(0.7); }
-        }
+      <!-- Badge 2 -->
+      <rect x="175" y="0" width="125" height="28" rx="8" fill="#064e3b" fill-opacity="0.7" stroke="#34d399" stroke-opacity="0.4" />
+      <text x="187" y="18" class="badge-text">⚡ 42MS LATENCY</text>
 
-        /* Right Scanner Graphic HUD */
-        .hud-card {
-          background: rgba(2, 44, 34, 0.75);
-          border: 1px solid rgba(52, 211, 153, 0.35);
-          border-radius: 16px;
-          padding: 16px;
-          width: 240px;
-          backdrop-filter: blur(12px);
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-          position: relative;
-        }
+      <!-- Badge 3 -->
+      <rect x="310" y="0" width="135" height="28" rx="8" fill="#064e3b" fill-opacity="0.7" stroke="#34d399" stroke-opacity="0.4" />
+      <text x="322" y="18" class="badge-text">📦 QR PASSPORT</text>
+    </g>
+  </g>
 
-        .hud-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          font-family: monospace;
-          font-size: 10px;
-          color: #34d399;
-          border-bottom: 1px solid rgba(52, 211, 153, 0.2);
-          padding-bottom: 8px;
-          margin-bottom: 10px;
-        }
+  <!-- Right Side AI HUD Card -->
+  <g transform="translate(525, 26)">
+    <!-- HUD Box Base -->
+    <rect width="235" height="184" rx="14" fill="#022c22" fill-opacity="0.85" stroke="#34d399" stroke-opacity="0.4" stroke-width="1.2" />
 
-        .hud-item {
-          display: flex;
-          justify-content: space-between;
-          font-size: 12px;
-          margin-bottom: 6px;
-          color: #e2e8f0;
-        }
+    <!-- Top Status Line -->
+    <text x="16" y="24" class="hud-title">AI CAMERA HUD v4.2</text>
+    <text x="180" y="24" class="hud-title" fill="#34d399">LIVE 🟢</text>
+    <line x1="16" y1="32" x2="219" y2="32" stroke="#34d399" stroke-opacity="0.2" stroke-width="1" />
 
-        .hud-val {
-          font-family: monospace;
-          font-weight: 700;
-          color: #34d399;
-        }
+    <!-- Item 1: Detected -->
+    <text x="16" y="52" class="hud-label">Detected:</text>
+    <text x="219" y="52" class="hud-val" text-anchor="end">Honeycrisp Apple</text>
 
-        .progress-bar-bg {
-          height: 6px;
-          background: rgba(16, 185, 129, 0.2);
-          border-radius: 3px;
-          overflow: hidden;
-          margin-top: 4px;
-        }
+    <!-- Item 2: Freshness Score -->
+    <text x="16" y="74" class="hud-label">Freshness Index:</text>
+    <text x="219" y="74" class="hud-val" text-anchor="end">94.8% (Grade A)</text>
 
-        .progress-bar-fill {
-          height: 100%;
-          width: 94%;
-          background: linear-gradient(90deg, #10b981, #34d399);
-          box-shadow: 0 0 10px #34d399;
-          animation: grow 2s ease-out infinite alternate;
-        }
+    <!-- Progress Bar BG -->
+    <rect x="16" y="84" width="203" height="7" rx="3.5" fill="#064e3b" fill-opacity="0.6" />
+    <!-- Progress Bar Fill -->
+    <rect x="16" y="84" width="190" height="7" rx="3.5" fill="url(#bar-grad)">
+      <animate attributeName="width" values="170;196;170" dur="3s" repeatCount="indefinite" />
+    </rect>
 
-        @keyframes grow {
-          0% { width: 85%; }
-          100% { width: 96%; }
-        }
-      </style>
-      <div class="container">
-        <div class="grid-bg"></div>
-        <div class="glow-orb-1"></div>
-        <div class="glow-orb-2"></div>
-        <div class="laser-sweep"></div>
+    <line x1="16" y1="104" x2="219" y2="104" stroke="#34d399" stroke-opacity="0.2" stroke-width="1" />
 
-        <!-- Left Content -->
-        <div style="z-index: 2;">
-          <div class="title">
-            <span>🌱 FRESH<span class="highlight">FLOW</span></span>
-          </div>
-          <div class="subtitle">
-            Next-Gen Autonomous Produce Quality Scanner, Rescue Marketplace &amp; Circular Supply Chain Intelligence.
-          </div>
-          <div class="badge-bar">
-            <div class="badge">
-              <div class="pulse-dot"></div>
-              <span>VISION TRANSFORMER AI</span>
-            </div>
-            <div class="badge">
-              <span>⚡ 42MS INFERENCE</span>
-            </div>
-            <div class="badge">
-              <span>📦 QR TRACEABILITY</span>
-            </div>
-          </div>
-        </div>
+    <!-- Item 3: Metrics -->
+    <text x="16" y="124" class="hud-label">Shelf Life Remaining:</text>
+    <text x="219" y="124" class="hud-val" text-anchor="end">7 Days</text>
 
-        <!-- Right HUD Display -->
-        <div class="hud-card" style="z-index: 2;">
-          <div class="hud-header">
-            <span>AI CAMERA HUD v4.2</span>
-            <span>LIVE 🟢</span>
-          </div>
-          <div class="hud-item">
-            <span>Detected:</span>
-            <span class="hud-val">Honeycrisp Apple</span>
-          </div>
-          <div class="hud-item">
-            <span>Freshness Index:</span>
-            <span class="hud-val">94.8% (Grade A)</span>
-          </div>
-          <div class="progress-bar-bg">
-            <div class="progress-bar-fill"></div>
-          </div>
-          <div style="margin-top: 10px; display: flex; justify-content: space-between; font-size: 10px; font-family: monospace; color: #a7f3d0;">
-            <span>Shelf Life: 7 Days</span>
-            <span>Brix: 12.4°</span>
-          </div>
-        </div>
+    <text x="16" y="144" class="hud-label">Brix Sugar Index:</text>
+    <text x="219" y="144" class="hud-val" text-anchor="end">12.4° Optimal</text>
 
-      </div>
-    </div>
-  </foreignObject>
+    <text x="16" y="164" class="hud-label">Carbon Saved:</text>
+    <text x="219" y="164" class="hud-val" text-anchor="end">1,125 kg CO₂</text>
+  </g>
 </svg>

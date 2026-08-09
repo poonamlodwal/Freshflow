@@ -1,117 +1,96 @@
-<svg fill="none" viewBox="0 0 800 180" width="100%" xmlns="http://www.w3.org/2000/svg">
-  <foreignObject width="100%" height="100%">
-    <div xmlns="http://www.w3.org/1999/xhtml">
-      <style>
-        .pipeline-card {
-          background: #090d16;
-          border-radius: 16px;
-          border: 1px solid rgba(16, 185, 129, 0.25);
-          height: 178px;
-          width: 798px;
-          padding: 20px;
-          box-sizing: border-box;
-          font-family: 'Segoe UI', system-ui, sans-serif;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          position: relative;
-          overflow: hidden;
-        }
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 160" width="100%" height="160">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="pipe-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090d16" />
+      <stop offset="100%" stop-color="#022c22" />
+    </linearGradient>
 
-        .step-box {
-          background: rgba(6, 78, 59, 0.4);
-          border: 1px solid rgba(52, 211, 153, 0.3);
-          border-radius: 12px;
-          padding: 16px;
-          width: 160px;
-          text-align: center;
-          box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-          transition: all 0.3s;
-          position: relative;
-          z-index: 2;
-        }
+    <!-- Connector Pulse Gradient -->
+    <linearGradient id="pulse-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#34d399" stop-opacity="0" />
+      <stop offset="50%" stop-color="#34d399" stop-opacity="1" />
+      <stop offset="100%" stop-color="#34d399" stop-opacity="0" />
+    </linearGradient>
+  </defs>
 
-        .step-num {
-          font-family: monospace;
-          font-weight: 800;
-          font-size: 10px;
-          color: #34d399;
-          background: rgba(16, 185, 129, 0.2);
-          padding: 3px 8px;
-          border-radius: 6px;
-          display: inline-block;
-          margin-bottom: 6px;
-        }
+  <style>
+    .step-num { font-family: monospace; font-weight: 700; font-size: 10px; fill: #34d399; }
+    .step-title { font-family: 'Segoe UI', system-ui, sans-serif; font-weight: 700; font-size: 13px; fill: #ffffff; }
+    .step-desc { font-family: 'Segoe UI', system-ui, sans-serif; font-size: 10px; fill: #94a3b8; }
+  </style>
 
-        .step-title {
-          color: #ffffff;
-          font-size: 13px;
-          font-weight: 700;
-          margin-bottom: 4px;
-        }
+  <!-- Container Base -->
+  <rect width="796" height="156" x="2" y="2" rx="14" fill="url(#pipe-bg)" stroke="#10b981" stroke-width="1.2" stroke-opacity="0.3" />
 
-        .step-desc {
-          color: #94a3b8;
-          font-size: 10px;
-          line-height: 1.3;
-        }
+  <!-- STEP 1 CARD -->
+  <g transform="translate(20, 20)">
+    <rect width="155" height="116" rx="10" fill="#064e3b" fill-opacity="0.4" stroke="#34d399" stroke-opacity="0.3" stroke-width="1" />
+    <rect x="12" y="12" width="60" height="18" rx="4" fill="#10b981" fill-opacity="0.2" />
+    <text x="42" y="25" class="step-num" text-anchor="middle">STEP 01</text>
+    <text x="12" y="52" class="step-title">📷 ViT Inspection</text>
+    <text x="12" y="74" class="step-desc">ResNet-50 Vision AI</text>
+    <text x="12" y="88" class="step-desc">classifies produce in</text>
+    <text x="12" y="102" class="step-desc" fill="#34d399" font-weight="700">42ms inference.</text>
+  </g>
 
-        .connector {
-          width: 30px;
-          height: 2px;
-          background: rgba(52, 211, 153, 0.2);
-          position: relative;
-          overflow: hidden;
-        }
+  <!-- CONNECTOR 1 -->
+  <g transform="translate(175, 78)">
+    <line x1="0" y1="0" x2="30" y2="0" stroke="#34d399" stroke-opacity="0.25" stroke-width="2" />
+    <circle cx="0" cy="0" r="3" fill="#34d399">
+      <animate attributeName="cx" values="0;30" dur="1.5s" repeatCount="indefinite" />
+      <animate attributeName="opacity" values="0;1;0" dur="1.5s" repeatCount="indefinite" />
+    </circle>
+  </g>
 
-        .connector-pulse {
-          position: absolute;
-          top: 0;
-          bottom: 0;
-          width: 12px;
-          background: linear-gradient(90deg, transparent, #34d399, transparent);
-          animation: flow 1.5s infinite linear;
-        }
+  <!-- STEP 2 CARD -->
+  <g transform="translate(205, 20)">
+    <rect width="155" height="116" rx="10" fill="#064e3b" fill-opacity="0.4" stroke="#34d399" stroke-opacity="0.3" stroke-width="1" />
+    <rect x="12" y="12" width="60" height="18" rx="4" fill="#10b981" fill-opacity="0.2" />
+    <text x="42" y="25" class="step-num" text-anchor="middle">STEP 02</text>
+    <text x="12" y="52" class="step-title">📊 Dynamic Grade</text>
+    <text x="12" y="74" class="step-desc">Calculates Brix level,</text>
+    <text x="12" y="88" class="step-desc">shelf-life days &amp;</text>
+    <text x="12" y="102" class="step-desc" fill="#34d399" font-weight="700">freshness ratio %.</text>
+  </g>
 
-        @keyframes flow {
-          0% { left: -100%; }
-          100% { left: 100%; }
-        }
-      </style>
+  <!-- CONNECTOR 2 -->
+  <g transform="translate(360, 78)">
+    <line x1="0" y1="0" x2="30" y2="0" stroke="#34d399" stroke-opacity="0.25" stroke-width="2" />
+    <circle cx="0" cy="0" r="3" fill="#34d399">
+      <animate attributeName="cx" values="0;30" dur="1.5s" begin="0.4s" repeatCount="indefinite" />
+      <animate attributeName="opacity" values="0;1;0" dur="1.5s" begin="0.4s" repeatCount="indefinite" />
+    </circle>
+  </g>
 
-      <div class="pipeline-card">
-        
-        <div class="step-box">
-          <div class="step-num">STEP 01</div>
-          <div class="step-title">📷 ViT Inspection</div>
-          <div class="step-desc">ResNet-50 Vision Transformer classifies produce freshness in 42ms.</div>
-        </div>
+  <!-- STEP 3 CARD -->
+  <g transform="translate(390, 20)">
+    <rect width="155" height="116" rx="10" fill="#064e3b" fill-opacity="0.4" stroke="#34d399" stroke-opacity="0.3" stroke-width="1" />
+    <rect x="12" y="12" width="60" height="18" rx="4" fill="#10b981" fill-opacity="0.2" />
+    <text x="42" y="25" class="step-num" text-anchor="middle">STEP 03</text>
+    <text x="12" y="52" class="step-title">🏬 Marketplace</text>
+    <text x="12" y="74" class="step-desc">Auto-lists surplus at</text>
+    <text x="12" y="88" class="step-desc">15%-60% discounts</text>
+    <text x="12" y="102" class="step-desc" fill="#34d399" font-weight="700">to prevent waste.</text>
+  </g>
 
-        <div class="connector"><div class="connector-pulse"></div></div>
+  <!-- CONNECTOR 3 -->
+  <g transform="translate(545, 78)">
+    <line x1="0" y1="0" x2="30" y2="0" stroke="#34d399" stroke-opacity="0.25" stroke-width="2" />
+    <circle cx="0" cy="0" r="3" fill="#34d399">
+      <animate attributeName="cx" values="0;30" dur="1.5s" begin="0.8s" repeatCount="indefinite" />
+      <animate attributeName="opacity" values="0;1;0" dur="1.5s" begin="0.8s" repeatCount="indefinite" />
+    </circle>
+  </g>
 
-        <div class="step-box">
-          <div class="step-num">STEP 02</div>
-          <div class="step-title">📊 Dynamic Grade</div>
-          <div class="step-desc">Calculates Brix sugar level, shelf-life days &amp; freshness ratio.</div>
-        </div>
-
-        <div class="connector"><div class="connector-pulse" style="animation-delay: 0.4s;"></div></div>
-
-        <div class="step-box">
-          <div class="step-num">STEP 03</div>
-          <div class="step-title">🏬 Marketplace</div>
-          <div class="step-desc">Auto-lists near-expiry surplus at 15%-60% algorithmic discounts.</div>
-        </div>
-
-        <div class="connector"><div class="connector-pulse" style="animation-delay: 0.8s;"></div></div>
-
-        <div class="step-box">
-          <div class="step-num">STEP 04</div>
-          <div class="step-title">📦 QR Passport</div>
-          <div class="step-desc">Generates audited cryptographic QR traceability certificate.</div>
-        </div>
-
-      </div>
-    </div>
-  </foreignObject>
+  <!-- STEP 4 CARD -->
+  <g transform="translate(575, 20)">
+    <rect width="155" height="116" rx="10" fill="#064e3b" fill-opacity="0.4" stroke="#34d399" stroke-opacity="0.3" stroke-width="1" />
+    <rect x="12" y="12" width="60" height="18" rx="4" fill="#10b981" fill-opacity="0.2" />
+    <text x="42" y="25" class="step-num" text-anchor="middle">STEP 04</text>
+    <text x="12" y="52" class="step-title">📦 QR Passport</text>
+    <text x="12" y="74" class="step-desc">Generates audited</text>
+    <text x="12" y="88" class="step-desc">cryptographic QR</text>
+    <text x="12" y="102" class="step-desc" fill="#34d399" font-weight="700">batch certificate.</text>
+  </g>
 </svg>
