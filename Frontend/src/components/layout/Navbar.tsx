@@ -50,12 +50,12 @@ export function Navbar() {
   };
 
   const navItems = [
-    { name: "Landing", href: "/", icon: Leaf },
+    { name: "Home", href: "/", icon: Leaf },
     { name: "Global Produce", href: "/explore", icon: Globe },
     { name: "AI Scanner", href: "/scan", icon: Scan },
     { name: "Marketplace", href: "/marketplace", icon: Store },
-    { name: "ERP Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Public Passport", href: "/track/BATCH-8901", icon: QrCode },
+    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Tracker", href: "/track/BATCH-8901", icon: QrCode },
   ];
 
   return (
@@ -118,18 +118,13 @@ export function Navbar() {
           {/* Light / Dark Mode Toggle Button */}
           <button
             onClick={toggleTheme}
-            className="p-2.5 rounded-xl bg-white/80 dark:bg-slate-900 border border-emerald-500/20 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all shadow-sm active:scale-95"
+            className="p-2.5 rounded-xl bg-white/80 dark:bg-slate-900 border border-emerald-500/20 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all shadow-sm active:scale-105"
             title={isDarkMode ? "Switch to Light Soft Mint Theme" : "Switch to Dark Midnight Theme"}
             aria-label="Toggle Theme Mode"
           >
             {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-emerald-600" />}
           </button>
 
-          <div className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 dark:bg-slate-900/80 border border-emerald-500/30 text-xs">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
-            <Cpu className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-            <span className="text-slate-700 dark:text-slate-300 font-mono text-[11px]">Hugging Face ViT</span>
-          </div>
 
           <Link
             href="/scan"
