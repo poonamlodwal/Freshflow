@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# Next.js build output
+.next/
+out/
+build/
+dist/
+
+# Python / Virtualenv
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+
+# Environment files
+.env
+.env*.local
+
+# IDE & OS files
+.DS_Store
+*.pem
+.vscode/
+.idea/
