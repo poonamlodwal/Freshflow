@@ -50,12 +50,12 @@ export function Navbar() {
   };
 
   const navItems = [
-    { name: "Landing", href: "/", icon: Leaf },
+    { name: "Home", href: "/", icon: Leaf },
     { name: "Global Produce", href: "/explore", icon: Globe },
     { name: "AI Scanner", href: "/scan", icon: Scan },
     { name: "Marketplace", href: "/marketplace", icon: Store },
-    { name: "ERP Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Public Passport", href: "/track/BATCH-8901", icon: QrCode },
+    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Tracker", href: "/track/BATCH-8901", icon: QrCode },
   ];
 
   return (
@@ -125,19 +125,18 @@ export function Navbar() {
             {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-emerald-600" />}
           </button>
 
-          <div className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 dark:bg-slate-900/80 border border-emerald-500/30 text-xs">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
-            <Cpu className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-            <span className="text-slate-700 dark:text-slate-300 font-mono text-[11px]">Hugging Face ViT</span>
+          <div className="relative hidden sm:flex lg:hidden xl:flex group">
+            <button
+              type="button"
+              disabled
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-medium text-xs shadow-emerald-glow transition-all opacity-90 cursor-not-allowed"
+            >
+              Sign In
+            </button>
+            <div className="absolute top-full right-0 mt-2 px-4 py-2 rounded-lg bg-slate-900 text-white text-xs font-semibold whitespace-nowrap opacity-0 translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 shadow-lg border border-emerald-500/20">
+              Coming Soon
+            </div>
           </div>
-
-          <Link
-            href="/scan"
-            className="hidden sm:flex lg:hidden xl:flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-medium text-xs shadow-emerald-glow transition-all active:scale-95"
-          >
-            <Sparkles className="w-4 h-4 animate-spin-slow" />
-            <span>Instant AI Scan</span>
-          </Link>
 
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
