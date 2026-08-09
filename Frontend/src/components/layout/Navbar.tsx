@@ -126,14 +126,19 @@ export function Navbar() {
           </button>
 
 
-          <Link
-            href="/scan"
-            className="hidden sm:flex lg:hidden xl:flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-medium text-xs shadow-emerald-glow transition-all active:scale-95"
-          >
-            <Sparkles className="w-4 h-4 animate-spin-slow" />
-            <span>Instant AI Scan</span>
-          </Link>
+          <div className="relative hidden sm:flex lg:hidden xl:flex group">
+  <button
+    type="button"
+    disabled
+    className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-medium text-xs shadow-emerald-glow transition-all opacity-90 cursor-not-allowed"
+  >
+    Sign In
+  </button>
 
+  <div className="absolute top-full right-0 mt-2 px-4 py-2 rounded-lg bg-slate-900 text-white text-xs font-semibold whitespace-nowrap opacity-0 translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 shadow-lg border border-emerald-500/20">
+  Coming Soon
+</div>
+</div>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="lg:hidden p-2.5 rounded-xl bg-white/80 dark:bg-slate-900 border border-emerald-500/20 dark:border-white/10 text-slate-700 dark:text-slate-300"
