@@ -28,7 +28,8 @@ logger = logging.getLogger(__name__)
 async def fetch_image_from_url(url: str) -> Image.Image:
     """Download image from public URL and return PIL Image."""
     try:
-        async with httpx.AsyncClient(timeout=settings.IMAGE_FETCH_TIMEOUT) as client:
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+        async with httpx.AsyncClient(timeout=settings.IMAGE_FETCH_TIMEOUT, follow_redirects=True, headers=headers) as client:
             response = await client.get(url)
             response.raise_for_status()
             return _bytes_to_image(response.content, source=url)

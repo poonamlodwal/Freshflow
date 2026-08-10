@@ -157,12 +157,15 @@ async def _run_prediction_and_log(
             detail=str(exc),
         )
 
-    sample = await log_training_sample(
-        db=db,
-        image_url=image_url,
-        predicted_label=result.rawLabel,
-    )
-    result.sampleId = sample.id
+    try:
+        sample = await log_training_sample(
+            db=db,
+            image_url=image_url,
+            predicted_label=result.rawLabel,
+        )
+        result.sampleId = sample.id
+    except Exception as exc:
+        logger.warning("Could not log training sample to DB (%s)", exc)
     return result
 
 
