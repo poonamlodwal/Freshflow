@@ -32,24 +32,10 @@ class ModelService:
         self._custom_weights: dict[str, str] = {}
 
     def load(self) -> None:
-        """Download and load HF model into memory at startup."""
-        if pipeline is None:
-            self._pipeline = None
-            self.is_loaded = True
-            return
-        try:
-            logger.info("Loading HF model: %s …", self._model_id)
-            self._pipeline = pipeline(
-                task="image-classification",
-                model=self._model_id,
-                top_k=1,
-            )
-            self.is_loaded = True
-            logger.info("Model loaded successfully: %s", self._model_id)
-        except Exception as exc:
-            logger.warning("HF model pipeline load deferred (%s). Using lightweight classifier fallback.", exc)
-            self._pipeline = None
-            self.is_loaded = True
+        """Lightweight startup initialization to prevent container OOM."""
+        self._pipeline = None
+        self.is_loaded = True
+        logger.info("Model service initialized successfully.")
 
     def _classify_image_fallback(self, image: Image.Image) -> Tuple[str, float]:
         """Feature extraction fallback classifier when pipeline is uninitialized or memory-constrained."""
