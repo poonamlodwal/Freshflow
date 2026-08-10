@@ -32,3 +32,6 @@ env/
 *.db
 *.sqlite
 *.sqlite3
+
+*.tsbuildinfo
+
