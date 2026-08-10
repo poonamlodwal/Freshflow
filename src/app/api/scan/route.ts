@@ -7,6 +7,8 @@ import {
   StrictProduceInspection,
 } from "@/lib/hf-inference";
 
+export const dynamic = "force-dynamic";
+
 const KNOWN_PRODUCE_KEYWORDS = [
   "apple", "banana", "strawberry", "pomegranate", "orange", "grape", "avocado",
   "mango", "guava", "tomato", "lemon", "lime", "potato", "onion", "peach", "pear",
