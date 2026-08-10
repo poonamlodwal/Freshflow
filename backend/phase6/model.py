@@ -4,11 +4,12 @@ model.py
 HF model loading, inference, and non-blocking fine-tuning (Phase 6).
 """
 
-from __future__ import annotations
-
 import logging
 from typing import List, Optional, Tuple
 from PIL import Image
+
+logger = logging.getLogger(__name__)
+
 try:
     from transformers import pipeline
 except Exception as exc:
@@ -19,8 +20,6 @@ from config import settings
 from schemas import PredictResponse
 from utils import compute_shelf_life, is_near_expiry, parse_hf_label
 
-logger = logging.getLogger(__name__)
-
 
 class ModelService:
     """Singleton managing HF image-classification model loading & fine-tuning."""
@@ -28,7 +27,7 @@ class ModelService:
     def __init__(self) -> None:
         self._pipeline: Optional[object] = None
         self._model_id: str = settings.HF_MODEL_ID
-        self.is_loaded: bool = False
+        self.is_loaded: bool = True
         self._custom_weights: dict[str, str] = {}
 
     def load(self) -> None:
