@@ -214,7 +214,7 @@ export const MOCK_GLOBAL_PRODUCE: GlobalProduceItem[] = [
     freshnessGrade: "Grade A GlobalGAP",
     brixLevel: "19.2° Brix",
     description: "Firm seedless grapes with crunchy skin and sweet honey notes, grown in India's premier wine and viticulture valley.",
-    imageUrl: "https://images.unsplash.com/photo-1537640538966-79f369143f8f?auto=format&fit=crop&w=800&q=80",
+    imageUrl: "/images/grapes.jpg",
     keyNutrients: ["Resveratrol", "Copper", "Vitamin B6"],
     isTopExporter: true
   },
@@ -265,7 +265,7 @@ export const MOCK_GLOBAL_PRODUCE: GlobalProduceItem[] = [
     freshnessGrade: "Grade A Pungent Prime",
     brixLevel: "Gingerol 4.2%",
     description: "High altitude organic ginger rhizomes possessing sharp pungent aromatic warmth and essential therapeutic gingerol oils.",
-    imageUrl: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=800&q=80",
+    imageUrl: "/images/ginger.jpg" ,
     keyNutrients: ["Gingerols", "Shogaols", "Anti-inflammatory Antioxidants"],
     isTopExporter: true
   },
@@ -316,7 +316,7 @@ export const MOCK_GLOBAL_PRODUCE: GlobalProduceItem[] = [
     freshnessGrade: "Grade A Royal GI",
     brixLevel: "20.4° Brix",
     description: "Historical royal mango variety cultivated since the 18th century, famous for slender shape and melting sweet aromatic pulp.",
-    imageUrl: "https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=800&q=80",
+    imageUrl: "/images/dusserimango.jpg",
     keyNutrients: ["Beta-Carotene", "Vitamin C", "Potassium"],
     isTopExporter: true
   },
@@ -333,7 +333,7 @@ export const MOCK_GLOBAL_PRODUCE: GlobalProduceItem[] = [
     freshnessGrade: "Grade A Soft Seed",
     brixLevel: "12.5° Brix",
     description: "Round creamy white pulp guava known for mild sweet flavor, soft seeds, and extraordinarily high Vitamin C content.",
-    imageUrl: "https://images.unsplash.com/photo-1536511135885-985f54316d9e?auto=format&fit=crop&w=800&q=80",
+    imageUrl: "/images/guava.jpeg",
     keyNutrients: ["4x Vitamin C of Oranges", "Lycopene", "Pectin"],
     isTopExporter: false
   },
@@ -350,7 +350,7 @@ export const MOCK_GLOBAL_PRODUCE: GlobalProduceItem[] = [
     freshnessGrade: "Grade A High Capsaicin",
     brixLevel: "ASTA Color 120",
     description: "Spherical cherry-red peppers prized for deep crimson oleoresin color and pungent fiery culinary heat.",
-    imageUrl: "https://images.unsplash.com/photo-1588880331179-bc9b93a8cb5e?auto=format&fit=crop&w=800&q=80",
+    imageUrl: "/images/redchilli.jpg",
     keyNutrients: ["Capsaicin", "Vitamin C", "Carotenoids"],
     isTopExporter: true
   },
@@ -367,7 +367,7 @@ export const MOCK_GLOBAL_PRODUCE: GlobalProduceItem[] = [
     freshnessGrade: "Grade A High-Altitude",
     brixLevel: "15.0° Brix",
     description: "Apple orchards situated 7000ft above sea level producing fragrant, juicy apples with dense crisp bite.",
-    imageUrl: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=800&q=80",
+    imageUrl: "/images/himachalapple.webp",
     keyNutrients: ["Quercetin", "Fiber", "Vitamin C"],
     isTopExporter: true
   },
@@ -420,7 +420,7 @@ export const MOCK_GLOBAL_PRODUCE: GlobalProduceItem[] = [
     freshnessGrade: "Grade A Magenta",
     brixLevel: "15.1° Brix",
     description: "Vibrant pink skin enclosing deep ruby-red antioxidants-rich flesh speckled with tiny crunchy black seeds.",
-    imageUrl: "https://images.unsplash.com/photo-1527325678964-549216468488?auto=format&fit=crop&w=800&q=80",
+    imageUrl: "/images/dragonfruit.jpeg",
     keyNutrients: ["Betalain Antioxidants", "Prebiotics", "Iron"],
     isTopExporter: true
   },
@@ -522,7 +522,7 @@ export const MOCK_GLOBAL_PRODUCE: GlobalProduceItem[] = [
     freshnessGrade: "Grade A High Juice Ratio",
     brixLevel: "12.8° Brix",
     description: "Sun-drenched Mediterranean oranges offering exceptional juiciness, vibrant thin peel, and high sugar-acid balance.",
-    imageUrl: "https://images.unsplash.com/photo-1582979512210-99b6a53386f9?auto=format&fit=crop&w=800&q=80",
+    imageUrl: "/images/oranges.jpeg",
     keyNutrients: ["Vitamin C", "Hesperidin", "Folate"],
     isTopExporter: true
   },
@@ -556,7 +556,7 @@ export const MOCK_GLOBAL_PRODUCE: GlobalProduceItem[] = [
     freshnessGrade: "Grade A Gourmet Gold",
     brixLevel: "20.5° Brix",
     description: "Sub-tropical Australian mango possessing smooth fibreless apricot-colored flesh and sweet honey syrup flavor.",
-    imageUrl: "https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=800&q=80",
+   imageUrl: "/images/goldmango.jpg",
     keyNutrients: ["Beta-Carotene", "Vitamin C", "Fiber"],
     isTopExporter: false
   },
@@ -573,7 +573,7 @@ export const MOCK_GLOBAL_PRODUCE: GlobalProduceItem[] = [
     freshnessGrade: "Grade A PDO Honey Core",
     brixLevel: "24.0° Brix",
     description: "Famous black-purple skin figs filled with jam-like ruby red honey pulp, worshipped by pastry chefs worldwide.",
-    imageUrl: "https://images.unsplash.com/photo-1601379329767-466f22037920?auto=format&fit=crop&w=800&q=80",
+    imageUrl: "/images/blackfig.jpeg",
     keyNutrients: ["Calcium", "Potassium", "Dietary Fiber"],
     isTopExporter: true
   },
@@ -590,7 +590,7 @@ export const MOCK_GLOBAL_PRODUCE: GlobalProduceItem[] = [
     freshnessGrade: "Grade A Extra Fancy",
     brixLevel: "14.2° Brix",
     description: "The gold standard in apple crunch technology, engineered for explosive juice bursts and honey sweetness.",
-    imageUrl: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=800&q=80",
+    imageUrl: "/images/apple.jpg",
     keyNutrients: ["Dietary Fiber", "Vitamin C", "Antioxidants"],
     isTopExporter: true
   },
@@ -607,7 +607,7 @@ export const MOCK_GLOBAL_PRODUCE: GlobalProduceItem[] = [
     freshnessGrade: "Grade A Rainforest Alliance",
     brixLevel: "19.0° Brix",
     description: "The world's leading banana export hub, supplying creamy nutrient-dense bananas grown in equatorial soil.",
-    imageUrl: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=800&q=80",
+    imageUrl: "/images/banana.jpeg",
     keyNutrients: ["Potassium", "Vitamin B6", "Magnesium"],
     isTopExporter: true
   },
@@ -624,7 +624,7 @@ export const MOCK_GLOBAL_PRODUCE: GlobalProduceItem[] = [
     freshnessGrade: "Grade A Superfood",
     brixLevel: "Antioxidant ORAC 102,700",
     description: "Wild Amazonian palm berries packed with healthy omegas, deep purple anthocyanins, and rich chocolate-berry notes.",
-    imageUrl: "https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?auto=format&fit=crop&w=800&q=80",
+    imageUrl: "/images/berry.jpeg",
     keyNutrients: ["Omega-3 & 6", "Anthocyanins", "Iron"],
     isTopExporter: true
   },
@@ -658,7 +658,7 @@ export const MOCK_GLOBAL_PRODUCE: GlobalProduceItem[] = [
     freshnessGrade: "Grade A Pristine",
     brixLevel: "11.8° Brix",
     description: "Hyper-aromatic California strawberries cultivated in coastal ocean breeze fields for maximum berry sweetness.",
-    imageUrl: "https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&w=800&q=80",
+    imageUrl: "/images/starberry.jpeg",
     keyNutrients: ["Vitamin C", "Ellagic Acid", "Folate"],
     isTopExporter: true
   },
