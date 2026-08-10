@@ -64,10 +64,12 @@ export function Navbar() {
         
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 group">
-          <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-700 p-[1px] shadow-emerald-glow transition-transform group-hover:scale-105">
-            <div className="w-full h-full bg-emerald-950 dark:bg-slate-950 rounded-[11px] flex items-center justify-center">
-              <Leaf className="w-5 h-5 text-emerald-400 group-hover:rotate-12 transition-transform duration-300" />
-            </div>
+          <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl p-[1px] bg-gradient-to-br from-amber-300/40 via-emerald-500/40 to-teal-600/40 shadow-emerald-glow transition-transform duration-300 group-hover:scale-105 overflow-hidden">
+            <img
+              src="/freshflow-logo.png"
+              alt="FreshFlow Logo"
+              className="w-full h-full rounded-[11px] object-contain bg-[#FAF5F0] p-0.5"
+            />
           </div>
           <div>
             <div className="flex items-center gap-1.5">

@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { Leaf, Cpu, ShieldCheck, Heart } from "lucide-react";
+import { Cpu, ShieldCheck, Heart } from "lucide-react";
 
 export function Footer() {
   return (
@@ -29,9 +29,13 @@ export function Footer() {
           
           {/* Col 1: Brand & Model Attribution */}
           <div className="md:col-span-2 space-y-4">
-            <Link href="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/25 border border-emerald-500/50 flex items-center justify-center backdrop-blur-md shadow-emerald-glow">
-                <Leaf className="w-5 h-5 text-emerald-400" />
+            <Link href="/" className="flex items-center gap-3 group">
+              <div className="w-10 h-10 rounded-xl p-[1px] bg-gradient-to-br from-amber-300/40 via-emerald-500/40 to-teal-600/40 shadow-emerald-glow overflow-hidden transition-transform duration-300 group-hover:scale-105">
+                <img
+                  src="/freshflow-logo.png"
+                  alt="FreshFlow Logo"
+                  className="w-full h-full rounded-[11px] object-contain bg-[#FAF5F0] p-0.5"
+                />
               </div>
               <span className="font-extrabold text-xl sm:text-2xl text-white tracking-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
                 Fresh<span className="text-emerald-400">Flow</span>
