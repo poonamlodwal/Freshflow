@@ -3,7 +3,6 @@ import { MOCK_SAMPLE_PRODUCE, SampleProduce } from "@/lib/mockData";
 import {
   queryHuggingFaceModel,
   DualStageInferenceResult,
-  generateStrictProduceInspection,
   StrictProduceInspection,
 } from "@/lib/hf-inference";
 
@@ -67,142 +66,142 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    let hfInferenceResult: DualStageInferenceResult | null = null;
-
-    if (imageBuffer && imageBuffer.length > 0) {
-      try {
-        hfInferenceResult = await queryHuggingFaceModel(imageBuffer);
-      } catch (hfErr) {
-        console.warn("[/api/scan] Dual-stage HF Inference call error:", hfErr);
+    // 1. Explicit Sample Selection (UI Quick Buttons)
+    if (sampleId) {
+      const sample = MOCK_SAMPLE_PRODUCE.find((p) => p.id === sampleId);
+      if (!sample) {
+        return NextResponse.json(
+          { success: false, error: `Sample produce with ID '${sampleId}' not found.` },
+          { status: 404 }
+        );
       }
+      return NextResponse.json({
+        status: "success",
+        produce: { name: sample.name, identification_confidence: 98 },
+        quality: { grade: sample.freshnessScore >= 85 ? "A" : "B", spoilage_detected: false, spoilage_type: ["none"] },
+        freshness: { score: sample.freshnessScore, classification: "Very Fresh", confidence: 95 },
+        shelf_life: { estimated_range_days: { minimum: sample.expiryDays - 1, maximum: sample.expiryDays }, confidence: 95, assumption: "Normal storage conditions" },
+        visual_evidence: [`Sample produce '${sample.name}' selected from library.`],
+        detected_issues: sample.defects,
+        recommendation: "Sample produce verification.",
+        limitations: ["Static sample library produce selection."],
+        timestamp: new Date().toISOString(),
+        modelAttribution: {
+          engine: "Sample Produce Library",
+          stage1Model: "N/A",
+          stage2Model: "N/A",
+        },
+        prediction: null,
+        analysis: sample,
+      });
     }
 
-    let matchedProduce: SampleProduce;
-    let inspection: StrictProduceInspection;
-
-    if (sampleId) {
-      // User picked an explicit sample item
-      matchedProduce = MOCK_SAMPLE_PRODUCE.find(
-        (p) => p.id === sampleId || p.name.toLowerCase().includes((produceName || "").toLowerCase())
-      ) || MOCK_SAMPLE_PRODUCE[0];
-
-      inspection = generateStrictProduceInspection(
-        hfInferenceResult?.rawLabel || matchedProduce.name,
-        hfInferenceResult?.confidence || 0.95
+    // 2. Real Image Inspection Validation (MUST have valid imageBuffer)
+    if (!imageBuffer || imageBuffer.length === 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "No valid image provided. Please upload an image file or provide a valid base64/HTTP image URL.",
+        },
+        { status: 400 }
       );
-    } else {
-      // Custom upload or live camera capture
-      const detectedType = hfInferenceResult?.produceType || produceName;
+    }
 
-      if (detectedType && isProduceType(detectedType)) {
-        inspection =
-          hfInferenceResult?.inspectionReport ||
-          generateStrictProduceInspection(detectedType, hfInferenceResult?.confidence || 0.94);
+    // 3. Execute Dual-Stage Model Inference (No Silent Mock Fallbacks)
+    let hfInferenceResult: DualStageInferenceResult;
+    try {
+      hfInferenceResult = await queryHuggingFaceModel(imageBuffer);
+    } catch (hfErr: any) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Dual-stage AI model inference failed: ${hfErr?.message || "Model service unavailable"}`,
+        },
+        { status: 500 }
+      );
+    }
 
-        const isSpoiled = inspection.quality.spoilage_detected;
-        const score = inspection.freshness.score;
+    const inspection: StrictProduceInspection = hfInferenceResult.inspectionReport;
+    const detectedType = hfInferenceResult.produceType;
+    let matchedProduce: SampleProduce;
 
-        let mappedGrade: SampleProduce["grade"] = "Grade A (Pristine)";
-        let suggestedDiscount = 0;
+    if (detectedType && isProduceType(detectedType)) {
+      const isSpoiled = inspection.quality.spoilage_detected;
+      const score = inspection.freshness.score;
 
-        if (inspection.quality.grade === "F") {
-          mappedGrade = "Grade C (Expiring Soon)";
-          suggestedDiscount = 60;
-        } else if (inspection.quality.grade === "D") {
-          mappedGrade = "Grade C (Expiring Soon)";
-          suggestedDiscount = 45;
-        } else if (inspection.quality.grade === "C") {
-          mappedGrade = "Grade C (Expiring Soon)";
-          suggestedDiscount = 30;
-        } else if (inspection.quality.grade === "B") {
-          mappedGrade = "Grade B (Minor Blemish)";
-          suggestedDiscount = 15;
-        } else {
-          mappedGrade = "Grade A (Pristine)";
-          suggestedDiscount = 0;
-        }
+      let mappedGrade: SampleProduce["grade"] = "Grade A (Pristine)";
+      let suggestedDiscount = 0;
 
-        const calculatedBrixNum = (14.0 * (0.65 + 0.35 * (score / 100))).toFixed(1);
-        const brixString = isSpoiled
-          ? `${calculatedBrixNum}° Brix (High Fermentation / Decay)`
-          : `${calculatedBrixNum}° Brix`;
-
-        matchedProduce = {
-          id: `scanned-${Date.now()}`,
-          name: `${inspection.produce.name} (${inspection.freshness.classification})`,
-          category: inspection.produce.name,
-          imageUrl: imageUrl || "",
-          freshnessScore: score,
-          grade: mappedGrade,
-          expiryDays: inspection.shelf_life.estimated_range_days.maximum,
-          brix: brixString,
-          defects: inspection.detected_issues.length > 0 ? inspection.detected_issues : ["Pristine produce condition"],
-          suggestedDiscount,
-          boundingBoxes: isSpoiled
-            ? [
-                {
-                  label: `${inspection.produce.name.toUpperCase()} (Spoiled / Mold Region)`,
-                  confidence: inspection.freshness.confidence,
-                  x: 18,
-                  y: 22,
-                  width: 64,
-                  height: 56,
-                },
-              ]
-            : [
-                {
-                  label: `${inspection.produce.name.toUpperCase()} (Fresh Region)`,
-                  confidence: inspection.freshness.confidence,
-                  x: 18,
-                  y: 22,
-                  width: 64,
-                  height: 56,
-                },
-              ],
-        };
+      if (inspection.quality.grade === "F") {
+        mappedGrade = "Grade C (Expiring Soon)";
+        suggestedDiscount = 60;
+      } else if (inspection.quality.grade === "D") {
+        mappedGrade = "Grade C (Expiring Soon)";
+        suggestedDiscount = 45;
+      } else if (inspection.quality.grade === "C") {
+        mappedGrade = "Grade C (Expiring Soon)";
+        suggestedDiscount = 30;
+      } else if (inspection.quality.grade === "B") {
+        mappedGrade = "Grade B (Minor Blemish)";
+        suggestedDiscount = 15;
       } else {
-        // Human face, background, or non-produce subject detected!
-        inspection = {
-          status: "success",
-          produce: {
-            name: "Non-Produce Subject",
-            identification_confidence: 0,
-          },
-          quality: {
-            grade: "F",
-            spoilage_detected: true,
-            spoilage_type: ["discoloration", "physical_damage"],
-          },
-          freshness: {
-            score: 0,
-            classification: "Spoiled / Highly Degraded",
-            confidence: 0,
-          },
-          shelf_life: {
-            estimated_range_days: { minimum: 0, maximum: 0 },
-            confidence: 0,
-            assumption: "Camera subject does not contain fruit or vegetable characteristics",
-          },
-          visual_evidence: ["Camera input does not match fruit or vegetable visual features."],
-          detected_issues: ["Non-Produce Subject Detected"],
-          recommendation: "Point camera at fresh fruits or vegetables to perform quality inspection.",
-          limitations: ["System is calibrated for agricultural produce inspection only."],
-        };
-
-        matchedProduce = {
-          id: `non-produce-${Date.now()}`,
-          name: "Non-Produce / Human Subject Detected",
-          category: "Non-Produce",
-          imageUrl: imageUrl || "",
-          freshnessScore: 0,
-          grade: "Grade C (Expiring Soon)",
-          expiryDays: 0,
-          brix: "N/A (No Fruit detected)",
-          defects: ["Subject does not match fruit/vegetable spectral characteristics"],
-          suggestedDiscount: 0,
-          boundingBoxes: [],
-        };
+        mappedGrade = "Grade A (Pristine)";
+        suggestedDiscount = 0;
       }
+
+      const calculatedBrixNum = (14.0 * (0.65 + 0.35 * (score / 100))).toFixed(1);
+      const brixString = isSpoiled
+        ? `${calculatedBrixNum}° Brix (High Fermentation / Decay)`
+        : `${calculatedBrixNum}° Brix`;
+
+      matchedProduce = {
+        id: `scanned-${Date.now()}`,
+        name: `${inspection.produce.name} (${inspection.freshness.classification})`,
+        category: inspection.produce.name,
+        imageUrl: imageUrl || "",
+        freshnessScore: score,
+        grade: mappedGrade,
+        expiryDays: inspection.shelf_life.estimated_range_days.maximum,
+        brix: brixString,
+        defects: inspection.detected_issues.length > 0 ? inspection.detected_issues : ["Pristine produce condition"],
+        suggestedDiscount,
+        boundingBoxes: isSpoiled
+          ? [
+              {
+                label: `${inspection.produce.name.toUpperCase()} (Spoiled / Mold Region)`,
+                confidence: inspection.freshness.confidence,
+                x: 18,
+                y: 22,
+                width: 64,
+                height: 56,
+              },
+            ]
+          : [
+              {
+                label: `${inspection.produce.name.toUpperCase()} (Fresh Region)`,
+                confidence: inspection.freshness.confidence,
+                x: 18,
+                y: 22,
+                width: 64,
+                height: 56,
+              },
+            ],
+      };
+    } else {
+      // Non-produce / Human subject detected!
+      matchedProduce = {
+        id: `non-produce-${Date.now()}`,
+        name: "Non-Produce / Human Subject Detected",
+        category: "Non-Produce",
+        imageUrl: imageUrl || "",
+        freshnessScore: 0,
+        grade: "Grade C (Expiring Soon)",
+        expiryDays: 0,
+        brix: "N/A (No Fruit detected)",
+        defects: ["Subject does not match fruit/vegetable spectral characteristics"],
+        suggestedDiscount: 0,
+        boundingBoxes: [],
+      };
     }
 
     return NextResponse.json({
@@ -218,10 +217,10 @@ export async function POST(req: NextRequest) {
       timestamp: new Date().toISOString(),
       modelAttribution: {
         engine: "FreshFlow AI Dual-Stage Inspection Pipeline",
-        stage1Model: hfInferenceResult?.stage1Model || "jazzmacedo/fruits-and-vegetables-detector-36",
-        stage2Model: hfInferenceResult?.stage2Model || "sfarog/fresh-and-rotten-fruits-classification",
-        freshProbability: hfInferenceResult?.freshProbability ?? 0.95,
-        rottenProbability: hfInferenceResult?.rottenProbability ?? 0.05,
+        stage1Model: hfInferenceResult.stage1Model,
+        stage2Model: hfInferenceResult.stage2Model,
+        freshProbability: hfInferenceResult.freshProbability,
+        rottenProbability: hfInferenceResult.rottenProbability,
         latencyMs: 84,
       },
       prediction: hfInferenceResult,
