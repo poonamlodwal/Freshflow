@@ -85,8 +85,8 @@ export function parseHFLabelToInferenceResult(
 ): HFInferenceResult {
   const normalized = rawLabel.toLowerCase().replace(/[\s\-_]+/g, "");
 
-  const rottenKeywords = ["rotten", "stale", "bad", "spoil", "decay", "mold", "moldy"];
-  const freshKeywords = ["fresh", "good", "pristine"];
+  const rottenKeywords = ["rotten", "stale", "bad", "spoil", "decay", "mold", "moldy", "blight", "spot", "wilt", "soft", "damaged"];
+  const freshKeywords = ["fresh", "good", "pristine", "ripe", "clean"];
 
   let freshStatus: "fresh" | "expiring" | "rotten" = "fresh";
   let cleanStem = normalized;

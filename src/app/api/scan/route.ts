@@ -94,24 +94,57 @@ export async function POST(req: NextRequest) {
       const detectedType = hfInferenceResult?.produceType || produceName;
 
       if (detectedType && isProduceType(detectedType)) {
-        const isFresh = hfInferenceResult?.freshStatus === "fresh";
-        const score = hfInferenceResult ? Math.round(hfInferenceResult.confidence * 100) : 92;
+        const freshStatus = hfInferenceResult?.freshStatus || "fresh";
+        const isRotten = freshStatus === "rotten";
+        const isExpiring = freshStatus === "expiring";
+
+        let freshnessScore = 94;
+        let grade: "Grade A (Pristine)" | "Grade B (Minor Blemish)" | "Grade C (Expiring Soon)";
+        let expiryDays = 7;
+        let defects: string[];
+        let suggestedDiscount = 0;
+
+        if (isRotten) {
+          // Rotten / Moldy produce -> Low freshness score (15-28%), Grade C, 0 Days remaining
+          freshnessScore = Math.min(28, Math.max(12, Math.round((1 - (hfInferenceResult?.confidence || 0.95)) * 100)));
+          if (freshnessScore === 0) freshnessScore = 22;
+          grade = "Grade C (Expiring Soon)";
+          expiryDays = 0;
+          defects = [
+            "Severe mold growth & fungal decay detected",
+            "High microbial decomposition index",
+            "Unfit for fresh retail consumption",
+          ];
+          suggestedDiscount = 50; // 50% Off MSRP for rescue / processing
+        } else if (isExpiring) {
+          freshnessScore = 62;
+          grade = "Grade B (Minor Blemish)";
+          expiryDays = 2;
+          defects = ["Surface softening & spot starting", "Near-expiry threshold reached"];
+          suggestedDiscount = 30;
+        } else {
+          freshnessScore = Math.max(85, Math.min(98, Math.round((hfInferenceResult?.confidence || 0.94) * 100)));
+          grade = "Grade A (Pristine)";
+          expiryDays = Math.max(5, hfInferenceResult?.estimatedShelfLifeDays ?? 7);
+          defects = ["Pristine produce condition (< 2% blemish)"];
+          suggestedDiscount = 0;
+        }
 
         matchedProduce = {
           id: `scanned-${Date.now()}`,
-          name: `${detectedType.toUpperCase()} (Detected Produce)`,
+          name: `${detectedType.toUpperCase()} (${isRotten ? "Rotten / Expired" : isExpiring ? "Near Expiry" : "Fresh Produce"})`,
           category: detectedType,
           imageUrl: imageUrl || "",
-          freshnessScore: score,
-          grade: isFresh ? "Grade A (Pristine)" : "Grade B (Minor Blemish)",
-          expiryDays: hfInferenceResult?.estimatedShelfLifeDays ?? 5,
-          brix: "14.2° Brix",
-          defects: isFresh ? ["Minor surface blemish (< 2%)"] : ["Surface spot detected"],
-          suggestedDiscount: isFresh ? 0 : 25,
+          freshnessScore,
+          grade,
+          expiryDays,
+          brix: isRotten ? "9.8° Brix (High Fermentation)" : "14.2° Brix",
+          defects,
+          suggestedDiscount,
           boundingBoxes: [
             {
-              label: `${detectedType.toUpperCase()} Produce Region`,
-              confidence: score,
+              label: `${detectedType.toUpperCase()} (${isRotten ? "Rotten / Fungal Mold" : "Fresh Region"})`,
+              confidence: hfInferenceResult ? Math.round(hfInferenceResult.confidence * 100) : 92,
               x: 18,
               y: 22,
               width: 64,
