@@ -35,36 +35,49 @@ export default function ScanPage() {
   };
 
   const handleUploadFile = (file: File) => {
+    setIsScanning(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
     const reader = new FileReader();
     reader.onload = (e) => {
       if (e.target?.result) {
-        setIsScanning(true);
-        const dataUrl = e.target.result as string;
-        setCurrentImageSrc(dataUrl);
-
-        // Map to Honeycrisp Apple or Banana sample data structure for testing
-        setTimeout(() => {
-          setSelectedProduce({
-            ...MOCK_SAMPLE_PRODUCE[0],
-            name: file.name.replace(/\.[^/.]+$/, "") || "Custom Uploaded Produce",
-          });
-          setIsScanning(false);
-        }, 1000);
+        setCurrentImageSrc(e.target.result as string);
       }
     };
     reader.readAsDataURL(file);
+
+    fetch("/api/scan", {
+      method: "POST",
+      body: formData,
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.analysis) {
+          setSelectedProduce(data.analysis);
+        }
+        setIsScanning(false);
+      })
+      .catch(() => setIsScanning(false));
   };
 
   const handleCameraCapture = (capturedDataUrl: string) => {
     setIsScanning(true);
     setCurrentImageSrc(capturedDataUrl);
-    setTimeout(() => {
-      setSelectedProduce({
-        ...MOCK_SAMPLE_PRODUCE[1],
-        name: "Mobile Camera Capture",
-      });
-      setIsScanning(false);
-    }, 1000);
+
+    fetch("/api/scan", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ imageUrl: capturedDataUrl }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.analysis) {
+          setSelectedProduce(data.analysis);
+        }
+        setIsScanning(false);
+      })
+      .catch(() => setIsScanning(false));
   };
 
   const showToast = (msg: string) => {

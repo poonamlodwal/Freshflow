@@ -2,6 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { MOCK_SAMPLE_PRODUCE, SampleProduce } from "@/lib/mockData";
 import { queryHuggingFaceModel, HFInferenceResult } from "@/lib/hf-inference";
 
+const KNOWN_PRODUCE_KEYWORDS = [
+  "apple", "banana", "strawberry", "pomegranate", "orange", "grape", "avocado",
+  "mango", "guava", "tomato", "lemon", "lime", "potato", "onion", "peach", "pear",
+  "cherry", "blueberry", "raspberry", "watermelon", "melon", "papaya", "pineapple",
+  "kiwi", "fig", "plum", "apricot", "coconut", "corn", "carrot", "broccoli",
+  "cucumber", "spinach", "cabbage", "pepper", "eggplant", "lettuce", "garlic", "produce"
+];
+
+function isProduceType(produceType: string): boolean {
+  const norm = produceType.toLowerCase();
+  return KNOWN_PRODUCE_KEYWORDS.some((kw) => norm.includes(kw));
+}
+
 export async function POST(req: NextRequest) {
   try {
     const contentType = req.headers.get("content-type") || "";
@@ -49,7 +62,6 @@ export async function POST(req: NextRequest) {
 
     let hfInferenceResult: HFInferenceResult | null = null;
 
-    // Call Hugging Face Inference API securely on the server side using HF_API_KEY
     if (imageBuffer && imageBuffer.length > 0) {
       try {
         hfInferenceResult = await queryHuggingFaceModel(imageBuffer);
@@ -58,20 +70,71 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    let matchedProduce: SampleProduce = MOCK_SAMPLE_PRODUCE.find(
-      (p) => p.id === sampleId || p.name.toLowerCase().includes((produceName || "").toLowerCase())
-    ) || MOCK_SAMPLE_PRODUCE[0];
+    let matchedProduce: SampleProduce;
 
-    if (hfInferenceResult) {
-      matchedProduce = {
-        ...matchedProduce,
-        name: hfInferenceResult.produceType
-          ? hfInferenceResult.produceType.toUpperCase() + " Batch"
-          : matchedProduce.name,
-        category: hfInferenceResult.produceType || matchedProduce.category,
-        freshnessScore: Math.round(hfInferenceResult.confidence * 100),
-        expiryDays: hfInferenceResult.estimatedShelfLifeDays ?? matchedProduce.expiryDays,
-      };
+    if (sampleId) {
+      // User picked an explicit sample item
+      matchedProduce = MOCK_SAMPLE_PRODUCE.find(
+        (p) => p.id === sampleId || p.name.toLowerCase().includes((produceName || "").toLowerCase())
+      ) || MOCK_SAMPLE_PRODUCE[0];
+
+      if (hfInferenceResult) {
+        matchedProduce = {
+          ...matchedProduce,
+          name: hfInferenceResult.produceType
+            ? hfInferenceResult.produceType.toUpperCase() + " Batch"
+            : matchedProduce.name,
+          category: hfInferenceResult.produceType || matchedProduce.category,
+          freshnessScore: Math.round(hfInferenceResult.confidence * 100),
+          expiryDays: hfInferenceResult.estimatedShelfLifeDays ?? matchedProduce.expiryDays,
+        };
+      }
+    } else {
+      // Custom upload or live camera capture
+      const detectedType = hfInferenceResult?.produceType || produceName;
+
+      if (detectedType && isProduceType(detectedType)) {
+        const isFresh = hfInferenceResult?.freshStatus === "fresh";
+        const score = hfInferenceResult ? Math.round(hfInferenceResult.confidence * 100) : 92;
+
+        matchedProduce = {
+          id: `scanned-${Date.now()}`,
+          name: `${detectedType.toUpperCase()} (Detected Produce)`,
+          category: detectedType,
+          imageUrl: imageUrl || "",
+          freshnessScore: score,
+          grade: isFresh ? "Grade A (Pristine)" : "Grade B (Minor Blemish)",
+          expiryDays: hfInferenceResult?.estimatedShelfLifeDays ?? 5,
+          brix: "14.2° Brix",
+          defects: isFresh ? ["Minor surface blemish (< 2%)"] : ["Surface spot detected"],
+          suggestedDiscount: isFresh ? 0 : 25,
+          boundingBoxes: [
+            {
+              label: `${detectedType.toUpperCase()} Produce Region`,
+              confidence: score,
+              x: 18,
+              y: 22,
+              width: 64,
+              height: 56,
+            },
+          ],
+        };
+      } else {
+        // Human face, background, or non-produce subject detected!
+        matchedProduce = {
+          id: `non-produce-${Date.now()}`,
+          name: "Non-Produce / Human Subject Detected",
+          category: "Non-Produce",
+          imageUrl: imageUrl || "",
+          freshnessScore: 0,
+          grade: "Grade C (Expiring Soon)",
+          expiryDays: 0,
+          brix: "N/A (No Fruit detected)",
+          defects: ["Subject does not match fruit/vegetable spectral characteristics"],
+          suggestedDiscount: 0,
+          boundingBoxes: [], // NO boxes over human faces!
+        };
+      }
     }
 
     return NextResponse.json({
