@@ -102,15 +102,19 @@ export function QualityReport({ produce, onSaveToERP, onAutoListMarketplace }: Q
           <div className="p-4 rounded-2xl bg-slate-100 dark:bg-slate-900/80 border border-emerald-500/20 dark:border-white/10 space-y-2">
             <div className="flex items-center justify-between text-xs">
               <span className="text-slate-600 dark:text-slate-400">Surface Defect Classification:</span>
-              <span className="text-amber-600 dark:text-amber-400 font-semibold">{produce.defects[0]}</span>
+              <span className={`font-semibold ${produce.freshnessScore <= 25 ? "text-red-600 dark:text-red-400" : "text-amber-600 dark:text-amber-400"}`}>
+                {produce.defects[0]}
+              </span>
             </div>
             <div className="flex items-center justify-between text-xs">
               <span className="text-slate-600 dark:text-slate-400">Carbon Offset Potential:</span>
               <span className="text-emerald-600 dark:text-emerald-400 font-semibold">1,125 kg CO2 saved</span>
             </div>
             <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-600 dark:text-slate-400">Recommended Discount:</span>
-              <span className="text-amber-600 dark:text-amber-300 font-bold">{produce.suggestedDiscount}% Off MSRP</span>
+              <span className="text-slate-600 dark:text-slate-400">Recommended Action:</span>
+              <span className={`font-bold ${produce.freshnessScore <= 25 ? "text-red-500 dark:text-red-300" : "text-amber-600 dark:text-amber-300"}`}>
+                {produce.freshnessScore <= 25 ? "Remove from Fresh Inventory (Grade F)" : `${produce.suggestedDiscount}% Off MSRP`}
+              </span>
             </div>
           </div>
         </div>
