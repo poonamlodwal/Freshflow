@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Leaf, Cpu, Sparkles } from "lucide-react";
+import { Cpu, Sparkles } from "lucide-react";
 
 export function FreshFlowLoader() {
   const [loading, setLoading] = useState(true);
@@ -26,15 +26,19 @@ export function FreshFlowLoader() {
         >
           <div className="flex flex-col items-center space-y-4">
             
-            {/* Rotating AI Ring around Leaf Icon */}
+            {/* Rotating AI Ring around FreshFlow Logo */}
             <div className="relative w-16 h-16 flex items-center justify-center">
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
                 className="absolute inset-0 rounded-full border-2 border-emerald-500/20 border-t-emerald-500 shadow-emerald-glow"
               />
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center">
-                <Leaf className="w-6 h-6 text-emerald-500 dark:text-emerald-400 animate-pulse" />
+              <div className="w-12 h-12 rounded-2xl p-[1px] bg-gradient-to-br from-amber-300/40 via-emerald-500/40 to-teal-600/40 shadow-emerald-glow overflow-hidden">
+                <img
+                  src="/freshflow-logo.png"
+                  alt="FreshFlow Logo"
+                  className="w-full h-full rounded-[15px] object-contain bg-[#FAF5F0] p-0.5 animate-pulse"
+                />
               </div>
             </div>
 

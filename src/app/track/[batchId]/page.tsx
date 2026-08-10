@@ -11,7 +11,6 @@ import {
   ShieldCheck, 
   MapPin, 
   Cpu, 
-  Leaf, 
   Thermometer, 
   Clock, 
   Hash, 
