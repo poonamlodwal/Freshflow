@@ -9,7 +9,11 @@ from __future__ import annotations
 import logging
 from typing import List, Optional, Tuple
 from PIL import Image
-from transformers import pipeline
+try:
+    from transformers import pipeline
+except Exception as exc:
+    logger.warning("Transformers module unavailable (%s). Using feature classifier fallback.", exc)
+    pipeline = None
 
 from config import settings
 from schemas import PredictResponse
@@ -29,6 +33,10 @@ class ModelService:
 
     def load(self) -> None:
         """Download and load HF model into memory at startup."""
+        if pipeline is None:
+            self._pipeline = None
+            self.is_loaded = True
+            return
         try:
             logger.info("Loading HF model: %s …", self._model_id)
             self._pipeline = pipeline(
