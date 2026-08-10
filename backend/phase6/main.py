@@ -142,6 +142,16 @@ app.add_middleware(
 )
 
 
+@app.get("/")
+async def root():
+    return {
+        "service": "FreshChain Phase 6 ML Service",
+        "status": "online",
+        "docs_url": "http://127.0.0.1:8000/docs",
+        "health_url": "http://127.0.0.1:8000/health",
+    }
+
+
 # ── Internal Predict Helper ───────────────────────────────────────────────────
 
 async def _run_prediction_and_log(
