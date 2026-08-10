@@ -24,6 +24,17 @@ export default function DashboardPage() {
   const [inventory, setInventory] = useState<ProduceBatch[]>(MOCK_MARKETPLACE_BATCHES);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
+  React.useEffect(() => {
+    fetch("/api/dashboard")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.inventory) {
+          setInventory(data.inventory);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const handleToggleStatus = (batchId: string) => {
     setInventory((prev) =>
       prev.map((item) => {

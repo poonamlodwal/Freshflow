@@ -35,12 +35,24 @@ export default function PublicTraceabilityPage() {
   );
 
   useEffect(() => {
-    const foundBatch = MOCK_MARKETPLACE_BATCHES.find((b) => b.id === batchId);
-    if (foundBatch) {
-      setBatchData(foundBatch);
-    }
-    const foundEvents = MOCK_TIMELINE_EVENTS[batchId] || MOCK_TIMELINE_EVENTS["BATCH-8901"];
-    setTimelineEvents(foundEvents);
+    fetch(`/api/track/${encodeURIComponent(batchId)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.batch) {
+          setBatchData(data.batch);
+        }
+        if (data.timeline) {
+          setTimelineEvents(data.timeline);
+        }
+      })
+      .catch(() => {
+        const foundBatch = MOCK_MARKETPLACE_BATCHES.find((b) => b.id === batchId);
+        if (foundBatch) {
+          setBatchData(foundBatch);
+        }
+        const foundEvents = MOCK_TIMELINE_EVENTS[batchId] || MOCK_TIMELINE_EVENTS["BATCH-8901"];
+        setTimelineEvents(foundEvents);
+      });
   }, [batchId]);
 
   const demoBatches = ["BATCH-8901", "BATCH-7742", "BATCH-3091"];

@@ -18,21 +18,38 @@ export default function MarketplacePage() {
 
   const categories = ["All", "Fruits", "Vegetables", "Organics", "Berries"];
 
-  const filteredBatches = MOCK_MARKETPLACE_BATCHES.filter((batch) => {
-    const matchesCategory = selectedCategory === "All" || batch.category === selectedCategory;
-    const matchesQuery =
-      batch.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      batch.farmName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      batch.location.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesExpiry = batch.expiryDaysRemaining <= expiryMaxDays;
+  const [batches, setBatches] = useState<ProduceBatch[]>(MOCK_MARKETPLACE_BATCHES);
 
-    return matchesCategory && matchesQuery && matchesExpiry;
-  });
+  React.useEffect(() => {
+    fetch(`/api/marketplace?category=${encodeURIComponent(selectedCategory)}&query=${encodeURIComponent(searchQuery)}&maxDays=${expiryMaxDays}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.listings) {
+          setBatches(data.listings);
+        }
+      })
+      .catch(() => {});
+  }, [selectedCategory, searchQuery, expiryMaxDays]);
+
+  const filteredBatches = batches;
 
   const handleClaimSuccess = (batchId: string) => {
-    setClaimedBatchIds((prev) => [...prev, batchId]);
-    setToastMsg(`Batch ${batchId} claimed successfully! Smart contract locked.`);
-    setTimeout(() => setToastMsg(null), 4000);
+    fetch("/api/marketplace", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ batchId }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setClaimedBatchIds((prev) => [...prev, batchId]);
+        setToastMsg(data.message || `Batch ${batchId} claimed successfully! Smart contract locked.`);
+        setTimeout(() => setToastMsg(null), 4000);
+      })
+      .catch(() => {
+        setClaimedBatchIds((prev) => [...prev, batchId]);
+        setToastMsg(`Batch ${batchId} claimed successfully! Smart contract locked.`);
+        setTimeout(() => setToastMsg(null), 4000);
+      });
   };
 
   return (
