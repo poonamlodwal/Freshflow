@@ -68,30 +68,29 @@ def _bytes_to_image(data: bytes, source: str) -> Image.Image:
 
 # ── Label Parsing & Shelf Life ────────────────────────────────────────────────
 
-_FRESH_KEYWORDS = ("fresh",)
-_ROTTEN_KEYWORDS = ("rotten", "stale", "bad", "spoil")
+_FRESH_KEYWORDS = ("fresh", "good", "pristine")
+_ROTTEN_KEYWORDS = ("rotten", "stale", "bad", "spoil", "decay", "mold", "moldy")
 
 
 def parse_hf_label(raw_label: str) -> Tuple[str, str]:
     """Parse raw label string into (freshStatus, produceType)."""
     normalised = raw_label.lower().replace(" ", "").replace("_", "").replace("-", "")
-    fresh_status = "unknown"
-    produce_stem = normalised
+    fresh_status = "fresh"
+    clean_stem = normalised
 
-    for kw in _FRESH_KEYWORDS:
-        if normalised.startswith(kw):
-            fresh_status = "fresh"
-            produce_stem = normalised[len(kw):]
+    for kw in _ROTTEN_KEYWORDS:
+        if kw in normalised:
+            fresh_status = "rotten"
+            clean_stem = clean_stem.replace(kw, "")
             break
 
-    if fresh_status == "unknown":
-        for kw in _ROTTEN_KEYWORDS:
-            if normalised.startswith(kw):
-                fresh_status = "rotten"
-                produce_stem = normalised[len(kw):]
-                break
+    if fresh_status != "rotten":
+        for kw in _FRESH_KEYWORDS:
+            if kw in normalised:
+                fresh_status = "fresh"
+                clean_stem = clean_stem.replace(kw, "")
 
-    produce_type = produce_stem if produce_stem else raw_label.lower()
+    produce_type = clean_stem.strip() if clean_stem.strip() else raw_label.lower()
     return fresh_status, produce_type
 
 
